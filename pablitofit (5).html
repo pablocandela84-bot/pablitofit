@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <title>PablitoFit — Entrenador Personal · Crevillent</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f0f4ff;
+      --black: #0d1b3e;
+      --accent: #1a3fa0;
+      --gray: #7a8aaa;
+      --border: #d0d8f0;
+      --font-display: 'Unbounded', sans-serif;
+      --font-body: 'Inter', sans-serif;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--black);
+      overflow-x: hidden;
+    }
+
+    /* ── CURSOR ── */
+    .cursor {
+      display: none;
+      position: fixed; width: 10px; height: 10px;
+      background: var(--accent); border-radius: 50%;
+      pointer-events: none; z-index: 9999;
+      transition: width 0.3s, height 0.3s, background 0.3s;
+    }
+    .cursor-ring {
+      display: none;
+      position: fixed; width: 40px; height: 40px;
+      border: 1px solid var(--black); border-radius: 50%;
+      pointer-events: none; z-index: 9998;
+      transition: all 0.18s ease-out;
+    }
+    .cursor.expand { width: 50px; height: 50px; background: rgba(255,60,0,0.15); }
+    .cursor-ring.expand { width: 0; height: 0; opacity: 0; }
+    .cursor.text-mode { width: 3px; height: 30px; border-radius: 2px; background: #1a3fa0; }
+
+    /* ── NOISE TEXTURE ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 9990;
+    }
+
+    /* ── MARQUEE ── */
+    .marquee-wrap {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      background: var(--accent); overflow: hidden;
+      padding: 0.4rem 0;
+    }
+    .marquee-track {
+      display: flex; white-space: nowrap;
+      animation: marqueeScroll 25s linear infinite;
+    }
+    .marquee-item {
+      font-family: var(--font-display); font-size: 0.6rem; font-weight: 700;
+      color: #fff; letter-spacing: 3px; text-transform: uppercase;
+      padding: 0 2rem; flex-shrink: 0;
+    }
+    .marquee-item::after { content: '·'; margin-left: 2rem; }
+    @keyframes marqueeScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 24px; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.2rem 2.5rem;
+      transition: background 0.4s, backdrop-filter 0.4s;
+    }
+    nav.scrolled {
+      background: rgba(240,244,255,0.92);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .logo {
+      font-family: var(--font-display);
+      font-size: 1.1rem; font-weight: 900;
+      letter-spacing: 6px; color: var(--black);
+      text-transform: uppercase;
+    }
+    .logo .logo-dot {
+      display: inline-block; width: 8px; height: 8px;
+      background: var(--accent); border-radius: 50%;
+      margin-left: 3px; vertical-align: super;
+      animation: blink 1.5s ease-in-out infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.3;transform:scale(0.6)} }
+    .nav-links { display: flex; align-items: center; gap: 2.5rem; }
+    .nav-link { font-size: 0.65rem; letter-spacing: 2px; color: var(--black); text-decoration: none; text-transform: uppercase; opacity: 0.6; transition: opacity 0.2s; }
+    .nav-link:hover { opacity: 1; }
+    .btn-nav {
+      font-family: var(--font-display); font-size: 0.65rem; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase;
+      background: transparent; color: var(--black);
+      border: 1.5px solid var(--black);
+      padding: 0.7rem 1.8rem; cursor: none;
+      transition: all 0.4s cubic-bezier(0.76, 0, 0.24, 1);
+      position: relative; overflow: hidden;
+    }
+    .btn-nav::before {
+      content: attr(data-text);
+      position: absolute; inset: 0;
+      background: #1a3fa0; color: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display); font-size: 0.65rem; font-weight: 700;
+      letter-spacing: 2px;
+      transform: translateY(100%);
+      transition: transform 0.4s cubic-bezier(0.76, 0, 0.24, 1);
+    }
+    .btn-nav:hover { color: transparent; }
+    .btn-nav:hover::before { transform: translateY(0); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      padding: 140px 2.5rem 5rem;
+      display: flex; flex-direction: column;
+      justify-content: flex-end;
+      position: relative; overflow: hidden;
+    }
+    .hero-bg-text {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: var(--font-display); font-size: clamp(100px, 18vw, 200px);
+      font-weight: 900; color: rgba(13,27,62,0.05);
+      white-space: nowrap; pointer-events: none; user-select: none;
+      letter-spacing: -5px;
+    }
+    .hero-content { position: relative; z-index: 1; max-width: 60%; }
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 0.62rem; font-weight: 500;
+      letter-spacing: 3px; text-transform: uppercase; color: var(--gray);
+      border: 1px solid var(--border); padding: 0.4rem 1rem;
+      border-radius: 50px; margin-bottom: 2rem;
+      opacity: 0; animation: fadeUp 0.8s 0.3s forwards;
+    }
+    .tag-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; animation: blink 1.5s infinite; }
+    h1 {
+      font-family: var(--font-display);
+      font-size: clamp(3rem, 7.5vw, 8.5rem);
+      font-weight: 900; line-height: 0.9;
+      letter-spacing: -3px; margin-bottom: 2.5rem;
+      opacity: 0; animation: fadeUp 0.8s 0.5s forwards;
+    }
+    h1 .red { color: var(--accent); }
+    h1 .stroke {
+      -webkit-text-stroke: 2px var(--black);
+      color: transparent;
+    }
+    .hero-bottom {
+      display: flex; align-items: flex-end; justify-content: space-between;
+      opacity: 0; animation: fadeUp 0.8s 0.8s forwards;
+    }
+    .hero-desc { max-width: 320px; font-size: 0.88rem; line-height: 1.8; color: var(--gray); }
+    .hero-desc strong { color: var(--black); }
+    .btn-hero {
+      font-family: var(--font-display); font-size: 0.8rem; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase;
+      background: #1a3fa0; color: var(--bg);
+      border: none; padding: 1.2rem 3rem; cursor: none;
+      transition: all 0.3s; position: relative; overflow: hidden;
+      white-space: nowrap;
+    }
+    .btn-hero::before {
+      content: ''; position: absolute; inset: 0;
+      background: var(--accent); transform: translateX(-100%);
+      transition: transform 0.4s cubic-bezier(0.76,0,0.24,1);
+    }
+    .btn-hero:hover::before { transform: translateX(0); }
+    .btn-hero span { position: relative; z-index: 1; }
+    .hero-social { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+    .hero-social a { font-size: 0.65rem; letter-spacing: 1px; color: var(--gray); text-decoration: none; transition: color 0.2s; cursor: none; }
+    .hero-social a:hover { color: var(--accent); }
+
+    /* ── SCROLL LINE ── */
+    .scroll-indicator {
+      position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      opacity: 0; animation: fadeUp 1s 1.5s forwards;
+    }
+    .scroll-indicator span { font-size: 0.55rem; letter-spacing: 3px; text-transform: uppercase; color: var(--gray); }
+    .scroll-line { width: 1px; height: 60px; background: linear-gradient(to bottom, var(--gray), transparent); animation: scrollAnim 2s ease-in-out infinite; }
+    @keyframes scrollAnim { 0%,100%{transform:scaleY(1);transform-origin:top} 50%{transform:scaleY(0.3);transform-origin:bottom} }
+
+    /* ── SECTION LABELS ── */
+    .section-label { font-size: 0.58rem; letter-spacing: 4px; text-transform: uppercase; color: var(--gray); margin-bottom: 1rem; }
+    .section-h2 { font-family: var(--font-display); font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 900; letter-spacing: -2px; line-height: 0.95; }
+
+    /* ── STATS ── */
+    .stats {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      border-bottom: 1px solid var(--border);
+    }
+    .stat {
+      padding: 3rem 2.5rem; border-right: 1px solid var(--border);
+      position: relative; overflow: hidden; cursor: none;
+    }
+    .stat:last-child { border-right: none; }
+    .stat-fill {
+      position: absolute; inset: 0; background: #1a3fa0;
+      transform: translateY(100%);
+      transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1);
+    }
+    .stat:hover .stat-fill { transform: translateY(0); }
+    .stat-inner { position: relative; z-index: 1; }
+    .stat:hover .stat-n, .stat:hover .stat-l { color: #ffffff; }
+    .stat-n {
+      font-family: var(--font-display); font-size: 3rem; font-weight: 900;
+      letter-spacing: -2px; display: block; margin-bottom: 0.3rem;
+      transition: color 0.3s;
+    }
+    .stat-l { font-size: 0.62rem; letter-spacing: 2px; text-transform: uppercase; color: var(--gray); transition: color 0.3s; }
+
+    /* ── PLANES — 3 TARJETAS ── */
+    .planes-section { border-bottom: 1px solid var(--border); }
+    .planes-header {
+      padding: 3rem 2.5rem; border-bottom: 1px solid var(--border);
+      display: flex; align-items: flex-end; justify-content: space-between;
+    }
+    .planes-grid {
+      display: grid; grid-template-columns: repeat(3,1fr);
+    }
+    .plan-card {
+      padding: 3.5rem 2.5rem; border-right: 1px solid var(--border);
+      position: relative; overflow: hidden; cursor: none;
+      background: #ffffff;
+      transition: all 0.4s cubic-bezier(0.76, 0, 0.24, 1);
+    }
+    .plan-card:last-child { border-right: none; }
+    .plan-card-fill {
+      position: absolute; inset: 0; background: #1a3fa0;
+      transform: translateY(100%);
+      transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1);
+    }
+    .plan-card:hover .plan-card-fill { transform: translateY(0); }
+    .plan-inner { position: relative; z-index: 1; }
+    .plan-num { font-size: 0.6rem; letter-spacing: 4px; text-transform: uppercase; color: var(--gray); margin-bottom: 2rem; transition: color 0.3s; }
+    .plan-icon { font-size: 2.5rem; margin-bottom: 1.5rem; }
+    .plan-name { font-family: var(--font-display); font-size: 1.6rem; font-weight: 900; letter-spacing: -1px; margin-bottom: 1rem; color: #0d1b3e; transition: color 0.3s; }
+    .plan-desc { font-size: 0.82rem; line-height: 1.8; color: var(--gray); margin-bottom: 2.5rem; transition: color 0.3s; }
+    .plan-badge {
+      display: inline-block;
+      font-family: var(--font-display); font-size: 0.62rem; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase;
+      border: 1px solid #d0d8f0; color: #0d1b3e; padding: 0.5rem 1rem;
+      transition: all 0.3s;
+    }
+    .plan-cta {
+      position: absolute; bottom: 2.5rem; right: 2.5rem;
+      font-family: var(--font-display); font-size: 0.65rem; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase;
+      background: #1a3fa0; color: #ffffff;
+      border: none; padding: 0.9rem 1.8rem; cursor: none;
+      transition: all 0.3s; opacity: 0; transform: translateY(10px);
+    }
+    /* Hover igual en las 3 tarjetas */
+    .plan-card:hover .plan-num  { color: rgba(255,255,255,0.5); }
+    .plan-card:hover .plan-name { color: #ffffff; }
+    .plan-card:hover .plan-desc { color: rgba(255,255,255,0.75); }
+    .plan-card:hover .plan-badge { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.5); color: #ffffff; }
+    .plan-card:hover .plan-cta  { opacity: 1; transform: translateY(0); background: #ffffff; color: #1a3fa0; }
+
+    /* ── PROCESO — ACORDEÓN ── */
+    .proceso-section { border-bottom: 1px solid var(--border); }
+    .proceso-header { padding: 3rem 2.5rem; border-bottom: 1px solid var(--border); }
+    .proceso-item {
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .proceso-trigger {
+      width: 100%; background: none; border: none; cursor: none;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 2rem 2.5rem; text-align: left;
+      transition: background 0.3s;
+    }
+    .proceso-trigger:hover { background: rgba(0,0,0,0.02); }
+    .proceso-trigger.open { background: #1a3fa0; color: #ffffff; }
+    .proceso-left { display: flex; align-items: center; gap: 2rem; }
+    .proceso-step { font-family: var(--font-display); font-size: 0.6rem; letter-spacing: 4px; text-transform: uppercase; color: var(--gray); min-width: 60px; }
+    .proceso-trigger.open .proceso-step { color: rgba(255,255,255,0.45); }
+    .proceso-title { font-family: var(--font-display); font-size: clamp(1rem, 2.5vw, 1.8rem); font-weight: 900; letter-spacing: -0.5px; }
+    .proceso-icon { font-size: 1.4rem; transition: transform 0.4s cubic-bezier(0.76,0,0.24,1); }
+    .proceso-trigger.open .proceso-icon { transform: rotate(45deg); }
+    .proceso-body {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.5s cubic-bezier(0.76,0,0.24,1), padding 0.4s;
+      padding: 0 2.5rem;
+    }
+    .proceso-body.open { max-height: 300px; padding: 0 2.5rem 2rem; }
+    .proceso-content { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; padding: 1.5rem 0; }
+    .proceso-desc { font-size: 0.88rem; line-height: 1.9; color: var(--gray); }
+    .proceso-bullets { display: flex; flex-direction: column; gap: 0.8rem; }
+    .proceso-bullet { font-size: 0.8rem; color: var(--gray); display: flex; align-items: center; gap: 10px; }
+    .proceso-bullet::before { content: '→'; color: var(--accent); font-weight: 700; }
+
+    /* ── TRANSFORMACIÓN — BEFORE/AFTER ── */
+    .ba-section {
+      display: grid; grid-template-columns: 1fr 1fr;
+      border-bottom: 1px solid var(--border);
+    }
+    .ba-col { padding: 5rem 2.5rem; }
+    .ba-col:first-child { border-right: 1px solid var(--border); }
+    .ba-head { font-family: var(--font-display); font-size: 1.8rem; font-weight: 900; letter-spacing: -1px; margin-bottom: 2.5rem; }
+    .ba-col:first-child .ba-head { color: var(--gray); }
+    .ba-col:last-child .ba-head { color: var(--accent); }
+    .ba-item {
+      display: flex; align-items: flex-start; gap: 1rem;
+      padding: 1.2rem 0; border-bottom: 1px solid var(--border);
+      font-size: 0.88rem; color: var(--gray);
+      transform: translateX(0);
+      transition: transform 0.3s, color 0.3s;
+    }
+    .ba-item:hover { transform: translateX(6px); color: var(--black); }
+    .ba-col:last-child .ba-item:hover { color: var(--accent); }
+    .ba-item:last-child { border-bottom: none; }
+    .ba-icon { flex-shrink: 0; }
+
+    /* ── TESTIMONIOS ── */
+    .reviews-section { border-bottom: 1px solid var(--border); }
+    .reviews-header { padding: 3rem 2.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: flex-end; justify-content: space-between; }
+    .reviews-grid { display: grid; grid-template-columns: repeat(3,1fr); }
+    .review-box {
+      padding: 3rem 2.5rem; border-right: 1px solid var(--border);
+      transition: background 0.4s cubic-bezier(0.76,0,0.24,1);
+      cursor: none;
+    }
+    .review-box:last-child { border-right: none; }
+    .review-box:hover { background: #1a3fa0; color: var(--bg); }
+    .review-stars { font-size: 0.75rem; color: #1a3fa0; letter-spacing: 3px; margin-bottom: 1.5rem; transition: color 0.3s; }
+    .review-text { font-size: 0.88rem; line-height: 1.9; margin-bottom: 2rem; color: var(--gray); font-style: italic; transition: color 0.3s; }
+    .review-box:hover .review-text { color: rgba(0,0,0,0.7); }
+    .review-author { display: flex; align-items: center; gap: 12px; }
+    .review-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 0.8rem; font-weight: 900; color: #fff; flex-shrink: 0; }
+    .review-name { font-size: 0.8rem; font-weight: 600; }
+    .review-loc { font-size: 0.65rem; color: var(--gray); transition: color 0.3s; }
+    .review-box:hover .review-loc { color: rgba(0,0,0,0.5); }
+
+    /* ── INSTAGRAM STRIP ── */
+    /* ── RUEDA GIRATORIA ── */
+    .wheel-section {
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+      background: #0d1b3e;
+      padding: 5rem 0;
+      position: relative;
+      cursor: pointer;
+    }
+    .wheel-section:hover .wheel-track { animation-play-state: paused; }
+    .wheel-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      overflow: hidden;
+      mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
+    }
+    .wheel-track {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      animation: wheelScroll 18s linear infinite;
+      will-change: transform;
+      flex-shrink: 0;
+    }
+    .wheel-track.reverse {
+      animation: wheelScrollReverse 22s linear infinite;
+    }
+    @keyframes wheelScroll {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+    @keyframes wheelScrollReverse {
+      from { transform: translateX(-50%); }
+      to   { transform: translateX(0); }
+    }
+    .wheel-word {
+      display: flex; align-items: center; gap: 0;
+      flex-shrink: 0;
+    }
+    .wheel-text {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 5vw, 5rem);
+      font-weight: 900;
+      letter-spacing: -2px;
+      text-transform: uppercase;
+      white-space: nowrap;
+      padding: 0 2rem;
+      color: rgba(255,255,255,0.08);
+      transition: color 0.3s;
+      user-select: none;
+    }
+    .wheel-text.accent {
+      color: #4f8eff;
+    }
+    .wheel-text.outline {
+      -webkit-text-stroke: 1px rgba(255,255,255,0.2);
+      color: transparent;
+    }
+    .wheel-section:hover .wheel-text { color: rgba(255,255,255,0.12); }
+    .wheel-section:hover .wheel-text.accent { color: #4f8eff; }
+    .wheel-section:hover .wheel-text.outline { color: transparent; }
+    .wheel-dot {
+      font-size: 0.5rem;
+      color: #4f8eff;
+      flex-shrink: 0;
+    }
+    .wheel-ig-btn {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+      font-family: var(--font-display); font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 3px; text-transform: uppercase;
+      background: #4f8eff; color: #ffffff;
+      border: none; padding: 1.1rem 2.8rem;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.76,0,0.24,1);
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    .wheel-section:hover .wheel-ig-btn {
+      opacity: 1; pointer-events: auto;
+    }
+    .wheel-ig-btn:hover { background: #ffffff; color: #0d1b3e; transform: translate(-50%,-50%) scale(1.05); }
+
+    /* ── UBICACIÓN ── */
+    .ubicacion-section {
+      display: grid; grid-template-columns: 1fr 1fr;
+      border-bottom: 1px solid var(--border);
+    }
+    .ubicacion-info { padding: 5rem 2.5rem; border-right: 1px solid var(--border); }
+    .ubicacion-map {
+      background: #1a1a1a; position: relative; overflow: hidden;
+      min-height: 400px;
+    }
+    .ubicacion-map iframe { width: 100%; height: 100%; border: none; filter: grayscale(100%) contrast(1.2); mix-blend-mode: luminosity; opacity: 0.6; }
+    .map-overlay { position: absolute; inset: 0; pointer-events: none; background: rgba(245,242,238,0.05); }
+    .address-block { margin-top: 2rem; }
+    .address-line { font-size: 0.82rem; line-height: 1.8; color: var(--gray); }
+    .address-line strong { color: var(--black); display: block; font-family: var(--font-display); font-size: 1rem; font-weight: 900; letter-spacing: -0.5px; }
+    .horario-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 2rem; }
+    .horario-item { font-size: 0.75rem; color: var(--gray); }
+    .horario-item strong { color: var(--black); display: block; font-size: 0.65rem; letter-spacing: 1px; text-transform: uppercase; }
+
+    /* ── CTA FINAL ── */
+    .cta-section {
+      padding: 8rem 2.5rem;
+      text-align: center; position: relative; overflow: hidden;
+    }
+    .cta-bg {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+      font-family: var(--font-display); font-size: 22vw; font-weight: 900;
+      color: rgba(13,27,62,0.04); white-space: nowrap; pointer-events: none;
+      letter-spacing: -10px;
+    }
+    .cta-h2 {
+      font-family: var(--font-display); font-size: clamp(3rem, 8vw, 9rem);
+      font-weight: 900; letter-spacing: -4px; line-height: 0.9;
+      margin-bottom: 3rem; position: relative;
+    }
+    .cta-h2 .red { color: var(--accent); }
+    .cta-h2 .stroke { -webkit-text-stroke: 2px var(--black); color: transparent; }
+    .btn-cta {
+      font-family: var(--font-display); font-size: 0.9rem; font-weight: 700;
+      letter-spacing: 3px; text-transform: uppercase;
+      background: #1a3fa0; color: var(--bg);
+      border: none; padding: 1.4rem 5rem; cursor: none;
+      transition: all 0.3s; position: relative; overflow: hidden; display: inline-block;
+    }
+    .btn-cta::before {
+      content: ''; position: absolute; inset: 0;
+      background: var(--accent); transform: translateX(-100%);
+      transition: transform 0.4s cubic-bezier(0.76,0,0.24,1);
+    }
+    .btn-cta:hover::before { transform: translateX(0); }
+    .btn-cta span { position: relative; z-index: 1; }
+    .cta-chips { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 2rem; position: relative; }
+    .chip { border: 1px solid var(--border); color: var(--gray); font-size: 0.68rem; letter-spacing: 1px; padding: 0.4rem 1rem; transition: all 0.3s; cursor: none; }
+    .chip:hover { background: #1a3fa0; color: var(--bg); border-color: var(--black); }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(10,10,10,0.85); backdrop-filter: blur(16px);
+      z-index: 1000; align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: #ffffff; border: 1px solid var(--border);
+      padding: 3rem; max-width: 480px; width: 90%;
+      position: relative;
+      animation: modalIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes modalIn { from { opacity:0; transform:scale(0.9) translateY(20px); } to { opacity:1; transform:scale(1) translateY(0); } }
+    .modal-close {
+      position: absolute; top: 1.5rem; right: 1.5rem;
+      background: none; border: none; font-size: 1.2rem;
+      cursor: none; color: var(--gray); transition: color 0.2s;
+    }
+    .modal-close:hover { color: var(--black); }
+    .modal-tag { font-size: 0.6rem; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); margin-bottom: 1rem; }
+    .modal-title { font-family: var(--font-display); font-size: 1.6rem; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 2rem; line-height: 1.1; }
+    .plan-chips { display: flex; gap: 8px; margin-bottom: 2rem; flex-wrap: wrap; }
+    .plan-chip {
+      font-family: var(--font-display); font-size: 0.6rem; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase;
+      border: 1px solid var(--border); padding: 0.5rem 1rem;
+      cursor: none; transition: all 0.3s;
+    }
+    .plan-chip.active { background: #1a3fa0; color: var(--bg); border-color: var(--black); }
+    .plan-chip:hover:not(.active) { border-color: var(--black); }
+    .modal-wa-btn {
+      width: 100%; background: #1a3fa0; color: #fff;
+      border: none; padding: 1.2rem;
+      font-family: var(--font-display); font-size: 0.85rem; font-weight: 700;
+      letter-spacing: 2px; cursor: none; transition: background 0.2s;
+      text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 10px;
+    }
+    .modal-wa-btn:hover { background: #0d2d8a; }
+    .modal-note { font-size: 0.7rem; color: var(--gray); text-align: center; margin-top: 1rem; line-height: 1.6; }
+    .modal-divider { height: 1px; background: var(--border); margin: 1.5rem 0; }
+
+    /* ── SCROLL REVEAL ── */
+    .reveal { opacity: 0; transform: translateY(40px); transition: all 0.9s cubic-bezier(0.16,1,0.3,1); }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-left { opacity: 0; transform: translateX(-40px); transition: all 0.9s cubic-bezier(0.16,1,0.3,1); }
+    .reveal-left.visible { opacity: 1; transform: translateX(0); }
+    .reveal-right { opacity: 0; transform: translateX(40px); transition: all 0.9s cubic-bezier(0.16,1,0.3,1); }
+    .reveal-right.visible { opacity: 1; transform: translateX(0); }
+
+    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 2.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 0.65rem; letter-spacing: 1px; text-transform: uppercase; color: var(--gray);
+    }
+    footer a { color: var(--gray); text-decoration: none; transition: color 0.2s; cursor: none; }
+    footer a:hover { color: var(--black); }
+
+    /* ── RESPONSIVE ── */
+    @media (min-width: 1024px) {
+      body { cursor: none; }
+      .cursor { display: block; }
+      .cursor-ring { display: block; }
+    }
+
+    @media (max-width: 768px) {
+      body { cursor: auto; }
+      .cursor, .cursor-ring { display: none; }
+      nav { padding: 1rem 1.2rem; top: 24px; }
+      .nav-links { display: none; }
+      .hero { padding: 120px 1.2rem 3rem; }
+      .hero-content { max-width: 100%; }
+      h1 { font-size: 3.2rem; letter-spacing: -2px; }
+      .hero-bottom { flex-direction: column; gap: 2rem; align-items: flex-start; }
+      .hero-social { align-items: flex-start; }
+      .stats { grid-template-columns: repeat(2,1fr); }
+      .stat:nth-child(2) { border-right: none; }
+      .stat:nth-child(3) { border-right: 1px solid var(--border); }
+      .planes-header { flex-direction: column; gap: 1.5rem; align-items: flex-start; }
+      .planes-grid { grid-template-columns: 1fr; }
+      .plan-card { border-right: none; border-bottom: 1px solid var(--border); }
+      .plan-cta { position: static; opacity: 1; transform: none; margin-top: 2rem; }
+      .proceso-content { grid-template-columns: 1fr; gap: 1rem; }
+      .ba-section { grid-template-columns: 1fr; }
+      .ba-col:first-child { border-right: none; border-bottom: 1px solid var(--border); }
+      .reviews-grid { grid-template-columns: 1fr; }
+      .review-box { border-right: none; border-bottom: 1px solid var(--border); }
+      .ubicacion-section { grid-template-columns: 1fr; }
+      .ubicacion-info { border-right: none; border-bottom: 1px solid var(--border); }
+      .ubicacion-map { min-height: 280px; }
+      .cta-section { padding: 5rem 1.2rem; }
+      .cta-h2 { font-size: 3rem; letter-spacing: -2px; }
+      .btn-cta { padding: 1.2rem 2rem; width: 100%; }
+      footer { flex-direction: column; gap: 1rem; text-align: center; }
+    }
+  
+    /* DARK THEME FIXES */
+    body { color: #e0e0d0; }
+    .hero-tag { color: #555555; border-color: #1a1a1a; }
+    .hero-desc { color: #555555; }
+    .hero-desc strong { color: #e0e0d0; }
+    .hero-social a { color: #444; }
+    .hero-social a:hover { color: var(--accent); }
+    .logo { color: #e0e0d0; }
+    .nav-link { color: #e0e0d0; }
+    .btn-nav { color: #e0e0d0; border-color: #e0e0d0; }
+    .btn-nav:hover { color: transparent; }
+    .btn-nav::before { background: #1a3fa0; color: #ffffff; }
+    .scroll-indicator span { color: #444; }
+    .stat-l { color: #444; }
+    .stat-n { color: #e0e0d0; }
+    .section-label { color: #444; }
+    .section-h2 { color: #e0e0d0; }
+    .plan-num { color: #444; }
+    .plan-name { color: #e0e0d0; }
+    .plan-desc { color: #444; }
+    .plan-badge { color: #e0e0d0; }
+    .plan-cta { background: #1a3fa0; color: #ffffff; }
+    .proceso-step { color: #444; }
+    .proceso-title { color: #e0e0d0; }
+    .proceso-trigger:hover { background: rgba(255,255,255,0.03); }
+    .proceso-desc { color: #555; }
+    .proceso-bullet { color: #555; }
+    .ba-head { color: #444; }
+    .ba-col:last-child .ba-head { color: #1a3fa0; }
+    .ba-item { color: #444; }
+    .ba-item:hover { color: #e0e0d0; }
+    .ba-col:last-child .ba-item:hover { color: #1a3fa0; }
+    .review-stars { color: #1a3fa0 !important; }
+    .review-text { color: #444; }
+    .review-name { color: #e0e0d0; }
+    .review-loc { color: #444; }
+    .review-box:hover .review-text { color: rgba(255,255,255,0.8) !important; }
+    .review-box:hover .review-name { color: #ffffff; }
+    .review-box:hover .review-stars { color: #1a3fa0 !important; }
+    .address-line { color: #555; }
+    .address-line strong { color: #e0e0d0; }
+    .horario-item { color: #555; }
+    .horario-item strong { color: #e0e0d0; }
+    .cta-h2 { color: #e0e0d0; }
+    .cta-h2 .stroke { -webkit-text-stroke: 2px #e0e0d0; }
+    .chip { color: #555; border-color: #1a1a1a; }
+    .chip:hover { background: #1a3fa0; color: #ffffff; border-color: #1a3fa0; }
+    .modal { background: #ffffff; color: #e0e0d0; }
+    .modal-title { color: #e0e0d0; }
+    .modal-close { color: #444; }
+    .modal-close:hover { color: #e0e0d0; }
+    .modal-note { color: #444; }
+    .modal-note strong { color: #e0e0d0; }
+    .modal-divider { background: #1a1a1a; }
+    .plan-chip { color: #e0e0d0; border-color: #1a1a1a; }
+    .plan-chip.active { background: #1a3fa0; color: #ffffff; border-color: #1a3fa0; }
+    .plan-chip:hover:not(.active) { border-color: #1a3fa0; color: #1a3fa0; }
+    footer { color: #444; border-color: #1a1a1a; }
+    footer a { color: #444; }
+    footer a:hover { color: #1a3fa0; }
+    .tag-dot { background: #1a3fa0; }
+    h1 .stroke { -webkit-text-stroke: 2px #e0e0d0; }
+    .modal-wa-btn svg path { fill: #080808 !important; }
+    .proceso-body { background: transparent; }
+    .ubicacion-map { background: #d8e0f8; }
+
+    /* NAVY BLUE THEME OVERRIDES */
+    .stat:hover .stat-n { color: #ffffff !important; }
+    .stat:hover .stat-l { color: rgba(255,255,255,0.7) !important; }
+    .review-box:hover { color: #ffffff !important; }
+    .review-box:hover .review-text { color: rgba(255,255,255,0.8) !important; }
+    .review-box:hover .review-name { color: #ffffff !important; }
+    .review-box:hover .review-stars { color: #1a3fa0 !important; }
+    .proceso-trigger.open .proceso-title { color: #ffffff; }
+    .proceso-trigger.open .proceso-icon { color: #ffffff; }
+    .btn-nav { color: #e8eef8; border-color: #1a2540; }
+    .btn-nav::before { background: #1a3fa0; color: #ffffff; }
+    .btn-nav:hover { color: transparent; }
+    .modal-wa-btn { background: #1a3fa0 !important; color: #ffffff !important; }
+    .modal-wa-btn:hover { background: #0d2d8a !important; }
+    .modal-wa-btn svg, .modal-wa-btn svg path { fill: #ffffff !important; }
+    .ba-col:last-child .ba-head { color: #1a3fa0; }
+    .footer a:hover { color: #1a3fa0; }
+    footer a:hover { color: #1a3fa0 !important; }
+    .spec-box:hover .spec-label { color: rgba(255,255,255,0.5) !important; }
+    .spec-box:hover { background: #1a3fa0 !important; color: #ffffff !important; }
+
+    /* LIGHT NAVY THEME */
+    body { color: #0d1b3e; }
+    .hero-tag { color: #7a8aaa; border-color: #d0d8f0; background: rgba(240,244,255,0.8); }
+    .hero-desc { color: #4a5878; }
+    .hero-desc strong { color: #0d1b3e; }
+    .hero-social a { color: #7a8aaa; }
+    .hero-social a:hover { color: #1a3fa0; }
+    .logo { color: #0d1b3e; }
+    .logo span[style] { color: #1a3fa0 !important; }
+    .nav-link { color: #0d1b3e; }
+    .btn-nav { color: #0d1b3e; border-color: #d0d8f0; }
+    .btn-nav:hover { color: transparent; }
+    .btn-nav::before { background: #1a3fa0; color: #ffffff; }
+    .scroll-indicator span { color: #7a8aaa; }
+    .stat-l { color: #7a8aaa; }
+    .stat-n { color: #0d1b3e; }
+    .stat:hover .stat-n { color: #ffffff !important; }
+    .stat:hover .stat-l { color: rgba(255,255,255,0.7) !important; }
+    .section-label { color: #7a8aaa; }
+    .section-h2 { color: #0d1b3e; }
+    .plan-num { color: #7a8aaa; }
+    .plan-name { color: #0d1b3e; }
+    .plan-desc { color: #4a5878; }
+    .plan-badge { color: #0d1b3e; border-color: #d0d8f0; }
+    .proceso-step { color: #7a8aaa; }
+    .proceso-title { color: #0d1b3e; }
+    .proceso-trigger.open .proceso-title { color: #ffffff; }
+    .proceso-trigger.open .proceso-step { color: rgba(255,255,255,0.5); }
+    .proceso-trigger.open .proceso-icon { color: #ffffff; }
+    .proceso-trigger:hover { background: rgba(26,63,160,0.05); }
+    .proceso-desc { color: #1a2a50; }
+    .proceso-bullet { color: #1a2a50; }
+    
+    .ba-head { color: #7a8aaa; }
+    .ba-col:last-child .ba-head { color: #1a3fa0; }
+    .ba-item { color: #4a5878; }
+    .ba-item:hover { color: #0d1b3e; }
+    .ba-col:last-child .ba-item:hover { color: #1a3fa0; }
+    .review-stars { color: #1a3fa0 !important; }
+    .review-text { color: #4a5878; }
+    .review-name { color: #0d1b3e; }
+    .review-loc { color: #7a8aaa; }
+    .review-box:hover { color: #ffffff !important; }
+    .review-box:hover .review-text { color: rgba(255,255,255,0.85) !important; }
+    .review-box:hover .review-name { color: #ffffff !important; }
+    .review-box:hover .review-stars { color: rgba(255,255,255,0.9) !important; }
+    .review-box:hover .review-loc { color: rgba(255,255,255,0.6) !important; }
+    .address-line { color: #4a5878; }
+    .address-line strong { color: #0d1b3e; }
+    .horario-item { color: #4a5878; }
+    .horario-item strong { color: #0d1b3e; }
+    .cta-h2 { color: #0d1b3e; }
+    .cta-h2 .stroke { -webkit-text-stroke: 2px #0d1b3e; color: transparent; }
+    .cta-h2 .red { color: #1a3fa0; }
+    h1 .stroke { -webkit-text-stroke: 2px #0d1b3e; color: transparent; }
+    .chip { color: #4a5878; border-color: #d0d8f0; }
+    .modal { background: #ffffff !important; color: #0d1b3e !important; }
+    .modal-tag { color: #1a3fa0; }
+    .modal-title { color: #0d1b3e; }
+    .modal-close { color: #7a8aaa; }
+    .modal-close:hover { color: #0d1b3e; }
+    .modal-note { color: #7a8aaa; }
+    .modal-note strong { color: #0d1b3e; }
+    .modal-divider { background: #d0d8f0; }
+    .plan-chip { color: #0d1b3e; border-color: #d0d8f0; }
+    footer { color: #7a8aaa; border-color: #d0d8f0; }
+    footer a { color: #7a8aaa; }
+    footer a:hover { color: #1a3fa0 !important; }
+    .tag-dot { background: #1a3fa0; }
+    h1 .red { color: #1a3fa0; }
+    .ig-inner { color: rgba(255,255,255,0.12); }
+    .modal-wa-btn { background: #1a3fa0 !important; color: #ffffff !important; }
+    .modal-wa-btn:hover { background: #0d2d8a !important; }
+    .modal-wa-btn svg, .modal-wa-btn svg path { fill: #ffffff !important; }
+    .hero-bg-text { color: rgba(13,27,62,0.04); }
+    .cta-bg { color: rgba(13,27,62,0.04); }
+    .ubicacion-map iframe { filter: grayscale(20%) contrast(1.1) hue-rotate(200deg); mix-blend-mode: normal; opacity: 0.9; }
+    .spec-box:hover { background: #1a3fa0 !important; color: #ffffff !important; }
+    .spec-box:hover .spec-label { color: rgba(255,255,255,0.6) !important; }
+    .spec-box:hover .spec-val { color: #ffffff !important; }
+    .proceso-body.open { background: #ffffff; }
+    .logo-dot { background: #1a3fa0; }
+
+    /* ── TOUCH INTERACTIONS (móvil) ── */
+    .stat.touched .stat-fill { transform: translateY(0); }
+    .stat.touched .stat-n { color: #ffffff; }
+    .stat.touched .stat-l { color: rgba(255,255,255,0.7); }
+
+    .plan-card.touched .plan-card-fill { transform: translateY(0); }
+    .plan-card.touched .plan-num  { color: rgba(255,255,255,0.5); }
+    .plan-card.touched .plan-name { color: #ffffff; }
+    .plan-card.touched .plan-desc { color: rgba(255,255,255,0.75); }
+    .plan-card.touched .plan-badge { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.5); color: #ffffff; }
+    .plan-card.touched .plan-cta  { opacity: 1; transform: translateY(0); background: #ffffff; color: #1a3fa0; }
+
+    .review-box.touched { background: #1a3fa0; color: #ffffff; }
+    .review-box.touched .review-text { color: rgba(255,255,255,0.8) !important; }
+    .review-box.touched .review-name { color: #ffffff !important; }
+    .review-box.touched .review-stars { color: rgba(255,255,255,0.9) !important; }
+    .review-box.touched .review-loc { color: rgba(255,255,255,0.6) !important; }
+
+    .chip.touched { background: #1a3fa0; color: #ffffff; border-color: #1a3fa0; }
+
+    .ba-item.touched { transform: translateX(6px); color: #0d1b3e; }
+    .ba-col:last-child .ba-item.touched { color: #1a3fa0; }
+
+    .wheel-section.touched .wheel-track { animation-play-state: paused; }
+    .wheel-section.touched .wheel-ig-btn { opacity: 1; pointer-events: auto; }
+
+  
+    /* ── SIN SCROLL LATERAL ── */
+    html, body {
+      overflow-x: hidden;
+      max-width: 100vw;
+    }
+    * { box-sizing: border-box; }
+
+  </style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <span class="marquee-item">Crevillent</span>
+    <span class="marquee-item">Future Fit</span>
+    <span class="marquee-item">Valoración gratis</span>
+    <span class="marquee-item">Fuerza e hipertrofia</span>
+    <span class="marquee-item">Rutinas personalizadas</span>
+    <span class="marquee-item">2 días / semana</span>
+    <span class="marquee-item">3 días / semana</span>
+    <span class="marquee-item">Resultados reales</span>
+    <span class="marquee-item">Crevillent</span>
+    <span class="marquee-item">Future Fit</span>
+    <span class="marquee-item">Valoración gratis</span>
+    <span class="marquee-item">Fuerza e hipertrofia</span>
+    <span class="marquee-item">Rutinas personalizadas</span>
+    <span class="marquee-item">2 días / semana</span>
+    <span class="marquee-item">3 días / semana</span>
+    <span class="marquee-item">Resultados reales</span>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav id="mainNav">
+  <div class="logo">PABLO<span style="color:var(--accent)">FIT</span><span class="logo-dot"></span></div>
+  <div class="nav-links">
+    <a href="#planes" class="nav-link">Planes</a>
+    <a href="#proceso" class="nav-link">Método</a>
+    <a href="#testimonios" class="nav-link">Resultados</a>
+    <a href="#ubicacion" class="nav-link">Ubicación</a>
+  </div>
+  <button class="btn-nav" data-text="RESERVAR GRATIS" onclick="abrirModal()">RESERVAR GRATIS</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg-text">FUERZA</div>
+  <div class="hero-content">
+    <div class="hero-tag">
+      <span class="tag-dot"></span>
+      Entrenador Certificado · Future Fit Crevillent
+    </div>
+    <h1>CAMBIA<br>TU<br><span class="red">CUERPO</span><br><span class="stroke">HOY</span></h1>
+    <div class="hero-bottom">
+      <div class="hero-desc">
+        <strong>Pablito</strong> — entrenador personal en Crevillent. Sin excusas, sin rodeos. Solo método, constancia y resultados que se ven.
+      </div>
+      <button class="btn-hero" onclick="abrirModal()"><span>⚡ Valoración gratis</span></button>
+      <div class="hero-social">
+        <a href="https://www.instagram.com/pablitofit_" target="_blank">@pablitofit_</a>
+        <a href="https://wa.me/34634623930" target="_blank">+34 634 62 39 30</a>
+        <a href="https://www.facebook.com/share/18nZVHEKFH/" target="_blank">Facebook</a>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-indicator">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats reveal">
+  <div class="stat">
+    <div class="stat-fill"></div>
+    <div class="stat-inner">
+      <span class="stat-n" data-target="87">0</span>
+      <span class="stat-l">Clientes transformados</span>
+    </div>
+  </div>
+  <div class="stat">
+    <div class="stat-fill"></div>
+    <div class="stat-inner">
+      <span class="stat-n">4.9★</span>
+      <span class="stat-l">Valoración media</span>
+    </div>
+  </div>
+  <div class="stat">
+    <div class="stat-fill"></div>
+    <div class="stat-inner">
+      <span class="stat-n" data-target="3">0</span><span class="stat-n">+</span>
+      <span class="stat-l">Años de experiencia</span>
+    </div>
+  </div>
+  <div class="stat">
+    <div class="stat-fill"></div>
+    <div class="stat-inner">
+      <span class="stat-n">100%</span>
+      <span class="stat-l">Personalizado</span>
+    </div>
+  </div>
+</div>
+
+<!-- PLANES -->
+<section class="planes-section" id="planes">
+  <div class="planes-header reveal">
+    <div>
+      <div class="section-label">01 — Elige tu plan</div>
+      <h2 class="section-h2">TRES FORMAS<br>DE EMPEZAR</h2>
+    </div>
+    <div style="max-width:280px;font-size:0.82rem;line-height:1.8;color:var(--gray)">
+      Sin permanencia. Sin letra pequeña. Solo tú, yo y el trabajo bien hecho.
+    </div>
+  </div>
+  <div class="planes-grid">
+
+    <!-- Plan 1 -->
+    <div class="plan-card reveal-left" onclick="abrirModal('valoracion')">
+      <div class="plan-card-fill"></div>
+      <div class="plan-inner">
+        <div class="plan-num">01</div>
+        <div class="plan-icon">🎯</div>
+        <div class="plan-name">Valoración inicial</div>
+        <div class="plan-desc">Primera sesión para conocernos. Analizo tu punto de partida, tus objetivos y diseño el camino. Sin compromiso.</div>
+        <div class="plan-badge">GRATIS</div>
+      </div>
+      <button class="plan-cta" onclick="event.stopPropagation();abrirModal('valoracion')">Reservar →</button>
+    </div>
+
+    <!-- Plan 2 — Destacado -->
+    <div class="plan-card reveal" onclick="abrirModal('dos')">
+      <div class="plan-card-fill"></div>
+      <div class="plan-inner">
+        <div class="plan-num" >02 — Más popular</div>
+        <div class="plan-icon">💪</div>
+        <div class="plan-name" style="color:#e8eef8">2 días / semana</div>
+        <div class="plan-desc">Dos sesiones de 60 min bien programadas son suficientes para ver resultados reales. Perfecto si tienes vida fuera del gym.</div>
+        <div class="plan-badge">Me interesa →</div>
+      </div>
+      <button class="plan-cta">Me interesa →</button>
+    </div>
+
+    <!-- Plan 3 -->
+    <div class="plan-card reveal-right" onclick="abrirModal('tres')">
+      <div class="plan-card-fill"></div>
+      <div class="plan-inner">
+        <div class="plan-num">03</div>
+        <div class="plan-icon">🔥</div>
+        <div class="plan-name">3 días / semana</div>
+        <div class="plan-desc">El plan completo. Máxima progresión, cambios más rápidos. Para los que quieren ir a por todas sin excusas.</div>
+        <div class="plan-badge">A por todas</div>
+      </div>
+      <button class="plan-cta" onclick="event.stopPropagation();abrirModal('tres')">A por todas →</button>
+    </div>
+
+  </div>
+</section>
+
+<!-- MÉTODO — ACORDEÓN -->
+<section class="proceso-section" id="proceso">
+  <div class="proceso-header reveal">
+    <div class="section-label">02 — Cómo funciona</div>
+    <h2 class="section-h2">EL MÉTODO<br>PABLITOFIT</h2>
+  </div>
+
+  <div class="proceso-item">
+    <button class="proceso-trigger" onclick="toggleProceso(this)">
+      <div class="proceso-left">
+        <span class="proceso-step">Paso 01</span>
+        <span class="proceso-title">Valoración inicial</span>
+      </div>
+      <span class="proceso-icon">+</span>
+    </button>
+    <div class="proceso-body">
+      <div class="proceso-content">
+        <div class="proceso-desc">Antes de hacer nada, necesito saber de dónde partes. Una primera sesión para analizar tu postura, movilidad, hábitos y objetivos. Gratuita, sin compromiso.</div>
+        <div class="proceso-bullets">
+          <div class="proceso-bullet">Análisis postural completo</div>
+          <div class="proceso-bullet">Test de movilidad y fuerza</div>
+          <div class="proceso-bullet">Conversación sobre objetivos reales</div>
+          <div class="proceso-bullet">Sin presión, sin letra pequeña</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="proceso-item">
+    <button class="proceso-trigger" onclick="toggleProceso(this)">
+      <div class="proceso-left">
+        <span class="proceso-step">Paso 02</span>
+        <span class="proceso-title">Tu rutina, desde cero</span>
+      </div>
+      <span class="proceso-icon">+</span>
+    </button>
+    <div class="proceso-body">
+      <div class="proceso-content">
+        <div class="proceso-desc">Nada de plantillas genéricas. Diseño tu plan específicamente para ti: tus objetivos, tu tiempo disponible, tu nivel y tu cuerpo. Cada semana evoluciona.</div>
+        <div class="proceso-bullets">
+          <div class="proceso-bullet">Rutina 100% personalizada</div>
+          <div class="proceso-bullet">Progresión semanal planificada</div>
+          <div class="proceso-bullet">Adaptada a tu vida real</div>
+          <div class="proceso-bullet">Técnica correcta desde el día 1</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="proceso-item">
+    <button class="proceso-trigger" onclick="toggleProceso(this)">
+      <div class="proceso-left">
+        <span class="proceso-step">Paso 03</span>
+        <span class="proceso-title">Entrenas conmigo</span>
+      </div>
+      <span class="proceso-icon">+</span>
+    </button>
+    <div class="proceso-body">
+      <div class="proceso-content">
+        <div class="proceso-desc">Cada sesión la hacemos juntos en Future Fit Crevillent. Corrijo tu técnica en tiempo real, te empujo cuando flaqueas y celebramos cada avance. No te dejo solo.</div>
+        <div class="proceso-bullets">
+          <div class="proceso-bullet">Sesiones de 60 min presenciales</div>
+          <div class="proceso-bullet">Corrección técnica constante</div>
+          <div class="proceso-bullet">Future Fit · Crevillent</div>
+          <div class="proceso-bullet">2 o 3 días / semana</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="proceso-item">
+    <button class="proceso-trigger" onclick="toggleProceso(this)">
+      <div class="proceso-left">
+        <span class="proceso-step">Paso 04</span>
+        <span class="proceso-title">Resultados visibles</span>
+      </div>
+      <span class="proceso-icon">+</span>
+    </button>
+    <div class="proceso-body">
+      <div class="proceso-content">
+        <div class="proceso-desc">Los cambios no pasan de la noche a la mañana, pero con constancia y método llegan antes de lo que crees. Muchos clientes notan diferencia en 4-6 semanas.</div>
+        <div class="proceso-bullets">
+          <div class="proceso-bullet">Seguimiento de progresión</div>
+          <div class="proceso-bullet">Ajustes mensuales del plan</div>
+          <div class="proceso-bullet">Primeros cambios en 4-6 semanas</div>
+          <div class="proceso-bullet">Sin rebote, sin chapuzas</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BEFORE / AFTER -->
+<section class="ba-section">
+  <div class="ba-col reveal-left">
+    <div class="ba-head">Sin entrenador</div>
+    <div class="ba-item"><span class="ba-icon">❌</span>Vas al gym sin saber qué hacer</div>
+    <div class="ba-item"><span class="ba-icon">❌</span>Técnica mala → lesiones frecuentes</div>
+    <div class="ba-item"><span class="ba-icon">❌</span>Meses entrenando sin resultados visibles</div>
+    <div class="ba-item"><span class="ba-icon">❌</span>Desmotivación y abandono</div>
+    <div class="ba-item"><span class="ba-icon">❌</span>Dinero gastado en cuotas sin sentido</div>
+  </div>
+  <div class="ba-col reveal-right">
+    <div class="ba-head">Con PablitoFit</div>
+    <div class="ba-item"><span class="ba-icon">✅</span>Plan claro desde el día 1</div>
+    <div class="ba-item"><span class="ba-icon">✅</span>Técnica corregida → progresión segura</div>
+    <div class="ba-item"><span class="ba-icon">✅</span>Cambios visibles en 4-6 semanas</div>
+    <div class="ba-item"><span class="ba-icon">✅</span>Motivación real, sesión a sesión</div>
+    <div class="ba-item"><span class="ba-icon">✅</span>Inversión que se nota en el espejo</div>
+  </div>
+</section>
+
+<!-- TESTIMONIOS -->
+<section class="reviews-section reveal" id="testimonios">
+  <div class="reviews-header">
+    <div>
+      <div class="section-label">03 — Lo que dicen</div>
+      <h2 class="section-h2">RESULTADOS<br>REALES</h2>
+    </div>
+    <div style="font-family:var(--font-display);font-size:3rem;font-weight:900;letter-spacing:-2px">4.9★</div>
+  </div>
+  <div class="reviews-grid">
+    <div class="review-box">
+      <div class="review-stars">★★★★★</div>
+      <div class="review-text">"Llevaba meses yendo al gym sin resultados. Con Pablo en 6 semanas ya notaba la diferencia. El método funciona."</div>
+      <div class="review-author">
+        <div class="review-avatar">CM</div>
+        <div>
+          <div class="review-name">Carlos M.</div>
+          <div class="review-loc">Crevillent · Marzo 2025</div>
+        </div>
+      </div>
+    </div>
+    <div class="review-box">
+      <div class="review-stars">★★★★★</div>
+      <div class="review-text">"Nunca había entrenado en serio y me daba vergüenza. Pablo es muy cercano, te exige lo justo y explica todo genial."</div>
+      <div class="review-author">
+        <div class="review-avatar">SR</div>
+        <div>
+          <div class="review-name">Sara R.</div>
+          <div class="review-loc">Crevillent · Junio 2025</div>
+        </div>
+      </div>
+    </div>
+    <div class="review-box">
+      <div class="review-stars">★★★★★</div>
+      <div class="review-text">"Probé el día de valoración sin expectativas y ya llevo 4 meses. Buen ambiente, te exige lo justo, los resultados hablan."</div>
+      <div class="review-author">
+        <div class="review-avatar">IT</div>
+        <div>
+          <div class="review-name">Iván T.</div>
+          <div class="review-loc">Alicante · Octubre 2025</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RUEDA GIRATORIA -->
+<div class="wheel-section" onclick="window.open('https://www.instagram.com/pablitofit_','_blank')">
+  <div style="display:flex;flex-direction:column;gap:1.5rem;">
+
+    <div class="wheel-wrapper">
+      <div class="wheel-track">
+        <div class="wheel-word"><span class="wheel-text accent">FUERZA</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text">MÚSCULO</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text outline">MÉTODO</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text accent">FUERZA</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text">MÚSCULO</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text outline">MÉTODO</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text accent">FUERZA</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text">MÚSCULO</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text outline">MÉTODO</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text accent">FUERZA</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text">MÚSCULO</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text outline">MÉTODO</span><span class="wheel-dot">●</span></div>
+      </div>
+      <div class="wheel-track" aria-hidden="true">
+        <div class="wheel-word"><span class="wheel-text accent">FUERZA</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text">MÚSCULO</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text outline">MÉTODO</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text accent">FUERZA</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text">MÚSCULO</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text outline">MÉTODO</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text accent">FUERZA</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text">MÚSCULO</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text outline">MÉTODO</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text accent">FUERZA</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text">MÚSCULO</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text outline">MÉTODO</span><span class="wheel-dot">●</span></div>
+      </div>
+    </div>
+
+    <div class="wheel-wrapper">
+      <div class="wheel-track reverse">
+        <div class="wheel-word"><span class="wheel-text accent">PABLITOFIT</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text outline">VIDA</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text">FIT</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text">CRECE</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text accent">PABLITOFIT</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text outline">VIDA</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text">FIT</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text">CRECE</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text accent">PABLITOFIT</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text outline">VIDA</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text">FIT</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text">CRECE</span><span class="wheel-dot">●</span></div>
+      </div>
+      <div class="wheel-track reverse" aria-hidden="true">
+        <div class="wheel-word"><span class="wheel-text accent">PABLITOFIT</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text outline">VIDA</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text">FIT</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text">CRECE</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text accent">PABLITOFIT</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text outline">VIDA</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text">FIT</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text">CRECE</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text accent">PABLITOFIT</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text outline">VIDA</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text">FIT</span><span class="wheel-dot">●</span></div>
+      <div class="wheel-word"><span class="wheel-text">CRECE</span><span class="wheel-dot">●</span></div>
+      </div>
+    </div>
+
+  </div>
+  <button class="wheel-ig-btn">@pablitofit_ — Ver Instagram →</button>
+</div>
+
+<!-- UBICACIÓN -->
+<section class="ubicacion-section" id="ubicacion">
+  <div class="ubicacion-info reveal-left">
+    <div class="section-label">04 — Dónde entrenar</div>
+    <h2 class="section-h2">FUTURE FIT<br>CREVILLENT</h2>
+    <div class="address-block">
+      <div class="address-line">
+        <strong>Dirección</strong>
+        Av. Sant Vicent Ferrer, 2A<br>
+        03330 Crevillent, Alicante
+      </div>
+      <div class="horario-grid" style="margin-top:2rem">
+        <div class="horario-item"><strong>Lunes – Viernes</strong>7:00 – 22:00</div>
+        <div class="horario-item"><strong>Sábados</strong>9:00 – 14:00</div>
+      </div>
+    </div>
+    <div style="margin-top:3rem;display:flex;gap:12px;flex-wrap:wrap;">
+      <button class="btn-nav" data-text="💬 WHATSAPP" onclick="window.open('https://wa.me/34634623930','_blank')" style="cursor:none">💬 WHATSAPP</button>
+      <button class="btn-nav" data-text="📍 CÓMO LLEGAR" onclick="window.open('https://maps.google.com/?q=Av.+Sant+Vicent+Ferrer+2A+Crevillent','_blank')" style="cursor:none">📍 CÓMO LLEGAR</button>
+    </div>
+  </div>
+  <div class="ubicacion-map reveal-right">
+    <iframe
+      src="https://maps.google.com/maps?q=Av.+Sant+Vicent+Ferrer+2A+Crevillent+Alicante&output=embed"
+      allowfullscreen loading="lazy">
+    </iframe>
+    <div class="map-overlay"></div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-section">
+  <div class="cta-bg">EMPIEZA</div>
+  <h2 class="cta-h2 reveal">
+    PRIMER<br>PASO<br><span class="red">GRATIS</span>
+  </h2>
+  <p class="reveal" style="font-size:0.9rem;color:var(--gray);max-width:400px;margin:0 auto 3rem;line-height:1.9;position:relative;">
+    Una valoración inicial sin coste, sin compromiso. Solo tú y yo hablando de tus objetivos.
+  </p>
+  <button class="btn-cta reveal" onclick="abrirModal()"><span>⚡ Reservar valoración gratis</span></button>
+  <div class="cta-chips reveal">
+    <span class="chip" onclick="window.open('https://wa.me/34634623930','_blank')">💬 WhatsApp directo</span>
+    <span class="chip">📍 Future Fit · Crevillent</span>
+    <span class="chip">🎯 Sin permanencia</span>
+    <span class="chip">⭐ 4.9 de valoración</span>
+  </div>
+</section>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="cerrarModalFuera(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="cerrarModal()">✕</button>
+    <div class="modal-tag">Reserva gratuita · Sin compromiso</div>
+    <div class="modal-title">ELIGE TU PLAN<br>Y ESCRÍBEME</div>
+    <div class="plan-chips" id="planChips">
+      <div class="plan-chip active" onclick="seleccionarPlan(this,'valoracion')">🎯 Valoración</div>
+      <div class="plan-chip" onclick="seleccionarPlan(this,'dos')">💪 2 días/sem</div>
+      <div class="plan-chip" onclick="seleccionarPlan(this,'tres')">🔥 3 días/sem</div>
+    </div>
+    <div class="modal-divider"></div>
+    <p style="font-size:0.82rem;line-height:1.8;color:var(--gray);margin-bottom:1.5rem">
+      Te voy a abrir WhatsApp directamente para que podamos hablar sin rodeos. Cuéntame qué quieres conseguir y buscamos el mejor momento para la primera sesión.
+    </p>
+    <button class="modal-wa-btn" id="modalWaBtn" onclick="irWhatsApp()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="#ffffff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+      Abrir WhatsApp
+    </button>
+    <div class="modal-note">📍 Future Fit · Av. Sant Vicent Ferrer, 2A, Crevillent<br>También puedes llamar al <strong>+34 634 62 39 30</strong></div>
+  </div>
+</div>
+
+<footer>
+  <span>© 2026 PablitoFit — @pablitofit_</span>
+  <div style="display:flex;gap:2rem">
+    <a href="https://www.instagram.com/pablitofit_" target="_blank">Instagram</a>
+    <a href="https://www.facebook.com/share/18nZVHEKFH/" target="_blank">Facebook</a>
+    <a href="https://wa.me/34634623930" target="_blank">WhatsApp</a>
+  </div>
+</footer>
+
+<script>
+// ── CURSOR ──
+const cur = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX; my=e.clientY;
+  cur.style.left=mx-5+'px'; cur.style.top=my-5+'px';
+});
+setInterval(()=>{ rx+=(mx-rx)*0.12; ry+=(my-ry)*0.12; ring.style.left=rx-20+'px'; ring.style.top=ry-20+'px'; },16);
+document.querySelectorAll('button,a,.plan-card,.stat,.review-box,.ig-cell,.chip,.plan-chip').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cur.classList.add('expand');ring.classList.add('expand');});
+  el.addEventListener('mouseleave',()=>{cur.classList.remove('expand');ring.classList.remove('expand');});
+});
+
+// ── NAV SCROLL ──
+window.addEventListener('scroll',()=>{
+  document.getElementById('mainNav').classList.toggle('scrolled',window.scrollY>60);
+});
+
+// ── SCROLL REVEAL ──
+const obs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
+},{threshold:0.1});
+document.querySelectorAll('.reveal,.reveal-left,.reveal-right').forEach(el=>obs.observe(el));
+
+// ── COUNTER ANIM ──
+function animCounter(el,target){
+  let n=0; const step=target/60;
+  const t=setInterval(()=>{ n+=step; if(n>=target){el.textContent=target.toLocaleString();clearInterval(t);return;} el.textContent=Math.floor(n).toLocaleString(); },25);
+}
+const cObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting&&e.target.dataset.target){animCounter(e.target,parseInt(e.target.dataset.target));cObs.unobserve(e.target);} });
+},{threshold:0.5});
+document.querySelectorAll('[data-target]').forEach(el=>cObs.observe(el));
+
+// ── ACORDEÓN ──
+function toggleProceso(btn){
+  const body=btn.nextElementSibling;
+  const isOpen=body.classList.contains('open');
+  // Cerrar todos
+  document.querySelectorAll('.proceso-body.open').forEach(b=>{
+    b.classList.remove('open');
+    b.previousElementSibling.classList.remove('open');
+  });
+  // Abrir si estaba cerrado
+  if(!isOpen){ body.classList.add('open'); btn.classList.add('open'); }
+}
+
+// ── MODAL ──
+let planActivo='valoracion';
+const mensajes = {
+  valoracion: 'Hola%20Pablito!%20Me%20gustar%C3%ADa%20reservar%20una%20valoraci%C3%B3n%20inicial%20gratuita.%20%C2%BFCu%C3%A1ndo%20podemos%20quedar%3F',
+  dos: 'Hola%20Pablito!%20Me%20interesa%20el%20plan%20de%202%20d%C3%ADas%20a%20la%20semana.%20%C2%BFMe%20cuentas%20m%C3%A1s%3F',
+  tres: 'Hola%20Pablito!%20Quiero%20el%20plan%20de%203%20d%C3%ADas%20a%20la%20semana.%20%C2%BFEmpezamos%3F'
+};
+
+function abrirModal(plan){
+  if(plan){ seleccionarPlan(null, plan); }
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function cerrarModal(){ document.getElementById('modalOverlay').classList.remove('open'); document.body.style.overflow=''; }
+function cerrarModalFuera(e){ if(e.target===document.getElementById('modalOverlay'))cerrarModal(); }
+
+function seleccionarPlan(el,plan){
+  planActivo=plan;
+  document.querySelectorAll('.plan-chip').forEach(c=>c.classList.remove('active'));
+  if(el) el.classList.add('active');
+  else {
+    const chips=document.querySelectorAll('.plan-chip');
+    const map={'valoracion':0,'dos':1,'tres':2};
+    chips[map[plan]]?.classList.add('active');
+  }
+}
+
+function irWhatsApp(){
+  window.open('https://wa.me/34634623930?text='+mensajes[planActivo],'_blank');
+  cerrarModal();
+}
+
+// ── PARALLAX HERO ──
+window.addEventListener('scroll',()=>{
+  const sy=window.scrollY;
+  const bgText=document.querySelector('.hero-bg-text');
+  if(bgText) bgText.style.transform=`translate(-50%,calc(-50% + ${sy*0.3}px))`;
+  const ctaBg=document.querySelector('.cta-bg');
+  if(ctaBg){ const r=document.querySelector('.cta-section')?.getBoundingClientRect(); if(r) ctaBg.style.transform=`translate(-50%,calc(-50% + ${r.top*-0.08}px))`; }
+});
+
+// ── MAGNETIC BUTTONS ──
+document.querySelectorAll('.btn-cta,.btn-hero,.btn-nav,.modal-wa-btn').forEach(btn=>{
+  btn.addEventListener('mousemove',e=>{
+    const r=btn.getBoundingClientRect();
+    const x=e.clientX-r.left-r.width/2;
+    const y=e.clientY-r.top-r.height/2;
+    btn.style.transform=`translate(${x*0.15}px,${y*0.3}px)`;
+  });
+  btn.addEventListener('mouseleave',()=>{ btn.style.transform=''; });
+});
+
+// ── TILT EN PLAN CARDS ──
+document.querySelectorAll('.plan-card').forEach(card=>{
+  card.addEventListener('mousemove',e=>{
+    const r=card.getBoundingClientRect();
+    const x=((e.clientX-r.left)/r.width-0.5)*12;
+    const y=((e.clientY-r.top)/r.height-0.5)*-8;
+    card.style.transform=`perspective(800px) rotateY(${x}deg) rotateX(${y}deg) scale(1.02)`;
+  });
+  card.addEventListener('mouseleave',()=>{ card.style.transform=''; });
+});
+
+// ── RIPPLE EN STATS ──
+document.querySelectorAll('.stat').forEach(stat=>{
+  stat.addEventListener('click',e=>{
+    const r=document.createElement('span');
+    const rect=stat.getBoundingClientRect();
+    r.style.cssText=`position:absolute;border-radius:50%;background:rgba(26,63,160,0.3);width:200px;height:200px;left:${e.clientX-rect.left-100}px;top:${e.clientY-rect.top-100}px;transform:scale(0);animation:ripple 0.6s linear;pointer-events:none;z-index:10`;
+    stat.appendChild(r);
+    setTimeout(()=>r.remove(),600);
+  });
+});
+// CSS ripple
+const s=document.createElement('style');
+s.textContent='@keyframes ripple{to{transform:scale(4);opacity:0}}';
+document.head.appendChild(s);
+
+// ── TYPING EFFECT EN HERO ──
+const words = ['FUERZA.', 'MÉTODO.', 'RESULTADOS.'];
+let wi=0,ci=0,deleting=false;
+const bgText=document.querySelector('.hero-bg-text');
+if(bgText){
+  bgText.textContent=words[0];
+  setInterval(()=>{
+    const word=words[wi];
+    if(!deleting){ bgText.textContent=word.slice(0,++ci); if(ci===word.length){deleting=true;setTimeout(()=>{},1200);} }
+    else{ bgText.textContent=word.slice(0,--ci); if(ci===0){deleting=false;wi=(wi+1)%words.length;} }
+  },90);
+}
+
+// ── TOUCH INTERACTIONS (móvil) ──
+function addTouch(selector, toggleClass, duration) {
+  document.querySelectorAll(selector).forEach(el => {
+    el.addEventListener('touchstart', e => {
+      el.classList.add(toggleClass);
+    }, { passive: true });
+    el.addEventListener('touchend', () => {
+      setTimeout(() => el.classList.remove(toggleClass), duration || 600);
+    }, { passive: true });
+  });
+}
+
+// Stats
+addTouch('.stat', 'touched', 700);
+
+// Plan cards — más largo para que se vea bien
+addTouch('.plan-card', 'touched', 900);
+
+// Reviews
+addTouch('.review-box', 'touched', 800);
+
+// Chips
+addTouch('.chip', 'touched', 500);
+
+// Before/After items
+addTouch('.ba-item', 'touched', 600);
+
+// Wheel section pausa al tocar
+const wheelSec = document.querySelector('.wheel-section');
+if (wheelSec) {
+  wheelSec.addEventListener('touchstart', () => {
+    wheelSec.classList.add('touched');
+  }, { passive: true });
+  wheelSec.addEventListener('touchend', () => {
+    setTimeout(() => wheelSec.classList.remove('touched'), 1200);
+  }, { passive: true });
+}
+
+// Ripple en stats con touch
+document.querySelectorAll('.stat').forEach(stat => {
+  stat.addEventListener('touchstart', e => {
+    const touch = e.touches[0];
+    const r = document.createElement('span');
+    const rect = stat.getBoundingClientRect();
+    r.style.cssText = `position:absolute;border-radius:50%;background:rgba(79,142,255,0.35);width:200px;height:200px;left:${touch.clientX-rect.left-100}px;top:${touch.clientY-rect.top-100}px;transform:scale(0);animation:ripple 0.6s linear;pointer-events:none;z-index:10`;
+    stat.appendChild(r);
+    setTimeout(() => r.remove(), 600);
+  }, { passive: true });
+});
+
+
+// ── BLOQUEAR SCROLL LATERAL EN MÓVIL ──
+(function() {
+  let startX = 0, startY = 0;
+  document.addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+  }, { passive: true });
+  document.addEventListener('touchmove', e => {
+    const dx = Math.abs(e.touches[0].clientX - startX);
+    const dy = Math.abs(e.touches[0].clientY - startY);
+    // Si el gesto es más horizontal que vertical, lo bloqueamos
+    if (dx > dy) {
+      e.preventDefault();
+    }
+  }, { passive: false });
+})();
+
+</script>
+</body>
+</html>
