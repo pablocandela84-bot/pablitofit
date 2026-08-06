@@ -1454,7 +1454,8 @@ function toggleDiaDescanso(semanaId, diaIdx) {
 }
 
 async function crearRutinaMes(clienteId) {
-  const mes = document.getElementById('selectMesRutina')?.value || new Date().toLocaleDateString('es-ES',{month:'long',year:'numeric'});
+  const mesRaw = document.getElementById('selectMesRutina')?.value || new Date().toLocaleDateString('es-ES',{month:'long',year:'numeric'});
+  const mes = mesRaw.charAt(0).toUpperCase() + mesRaw.slice(1);
   const fase = document.getElementById('selectFaseRutina')?.value || 'Acumulación';
   const diasIniciales = DIAS.map(d => ({nombre:d, descanso:false, calentamiento:[], ejercicios:[]}));
   const { data, error } = await sb.from('rutinas').insert([{
@@ -1584,8 +1585,10 @@ function buildNutriPlanEditor(p) {
         <div style="background:#f8faff;padding:0.8rem;text-align:center;border:1px solid var(--border)"><div style="font-family:var(--display);font-size:1.2rem;font-weight:900;color:#10b981">${p.grasas||'—'}</div><div style="font-size:0.58rem;color:var(--gray);text-transform:uppercase;letter-spacing:1px">Grasas g</div></div>
         <div style="background:var(--navy);padding:0.8rem;text-align:center;border:1px solid var(--border)"><div style="font-family:var(--display);font-size:1.2rem;font-weight:900;color:#fff">${p.calorias||'—'}</div><div style="font-size:0.58rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px">Kcal</div></div>
       </div>
+      <div id="meals-section-${p.id}">
       ${comidas.map((c,ci) => buildComidaEditor(c, ci, p.id)).join('')}
       <button class="add-exercise-btn" onclick="addComida('${p.id}')">+ Añadir comida</button>
+      </div>
     </div>
   </div>`;
 }
@@ -1630,7 +1633,8 @@ function buildFoodRow(item, ii, planId, ci) {
 let nutriCache = {};
 
 async function crearPlanNutri(clienteId) {
-  const mes = document.getElementById('selectMesNutri')?.value || new Date().toLocaleDateString('es-ES',{month:'long',year:'numeric'});
+  const mesNRaw = document.getElementById('selectMesNutri')?.value || new Date().toLocaleDateString('es-ES',{month:'long',year:'numeric'});
+  const mes = mesNRaw.charAt(0).toUpperCase() + mesNRaw.slice(1);
   const { data, error } = await sb.from('planes_nutricionales').insert([{
     cliente_id: clienteId, semana: Date.now(), mes,
     calorias: 2400, proteinas: 180, carbohidratos: 280, grasas: 70,
@@ -1680,9 +1684,41 @@ function removeFoodItem(planId, ci, ii) {
   document.getElementById(`food-${planId}-${ci}-${ii}`)?.remove();
 }
 
+function renderNutriEditorDesdeCache(planId) {
+  // Reconstruir el editor de comidas dentro del plan activo
+  const planEl = document.getElementById('nutri-'+planId);
+  if (!planEl) return;
+  const weekBody = planEl.querySelector('.week-body');
+  if (!weekBody) return;
+  const comidas = nutriCache[planId]?.comidas || [];
+  // Mantener los inputs de macros y reconstruir solo las comidas
+  const mealSection = weekBody.querySelector('#meals-section-'+planId);
+  if (mealSection) {
+    mealSection.innerHTML = comidas.map((c,ci) => buildComidaEditor(c, ci, planId)).join('') +
+      `<button class="add-exercise-btn" onclick="addComida('${planId}')">+ Añadir comida</button>`;
+  } else {
+    // Fallback: reconstruir todo el week-body de comidas
+    const allMealEditors = weekBody.querySelectorAll('.meal-editor');
+    const addBtn = weekBody.querySelector('.add-exercise-btn');
+    allMealEditors.forEach(el => el.remove());
+    if (addBtn) addBtn.remove();
+    comidas.forEach((c,ci) => {
+      const div = document.createElement('div');
+      div.innerHTML = buildComidaEditor(c, ci, planId);
+      weekBody.appendChild(div.firstElementChild);
+    });
+    const btn = document.createElement('button');
+    btn.className = 'add-exercise-btn';
+    btn.textContent = '+ Añadir comida';
+    btn.onclick = () => addComida(planId);
+    weekBody.appendChild(btn);
+  }
+}
+
 function addComida(planId) {
-  if (!nutriCache[planId]) return;
-  const newComida = { nombre: 'Nueva comida', hora:'', items:[], nota:'' };
+  if (!nutriCache[planId]) nutriCache[planId] = { comidas: [] };
+  if (!nutriCache[planId].comidas) nutriCache[planId].comidas = [];
+  const newComida = { nombre: 'Nueva comida', hora: '', items: [], nota: '' };
   nutriCache[planId].comidas.push(newComida);
   renderNutriEditorDesdeCache(planId);
 }
@@ -1901,7 +1937,7 @@ async function cargarNutriCliente() {
   const cont = document.getElementById('nutriContent');
   const { data } = await sb.from('planes_nutricionales').select('*').eq('cliente_id', id).order('semana');
   const planes = data || [];
-  planes.forEach(p => { if (!nutriCache[p.id]) nutriCache[p.id] = p.datos || { comidas: [] }; });
+  planes.forEach(p => { nutriCache[p.id] = p.datos || { comidas: [] }; if (!nutriCache[p.id].comidas) nutriCache[p.id].comidas = []; });
   cont.innerHTML = `
     <div style="padding:1rem;display:flex;gap:0.8rem">
       <button class="btn btn-primary" onclick="crearPlanNutri('${id}')">+ Nuevo plan mensual</button>
@@ -1972,8 +2008,10 @@ function showClienteTab(tab) {
 
 async function cargarMiRutina(clienteId) {
   const cont = document.getElementById('cliente-mi-rutina');
-  const { data } = await sb.from('rutinas').select('*').eq('cliente_id', clienteId).order('semana', {ascending:false}).limit(1);
-  const rutina = data && data[0];
+  const { data } = await sb.from('rutinas').select('*').eq('cliente_id', clienteId).order('semana', {ascending:true});
+  const rutinas = data || [];
+  const rutina = rutinas[rutinas.length - 1]; // más reciente por defecto
+  window._misRutinas = rutinas;
 
   if (!rutina || !rutina.datos) {
     cont.innerHTML = `<div class="empty-state"><div class="empty-state-icon">💪</div><div class="empty-state-text">Tu coach aún no ha publicado tu rutina. ¡Pronto estará aquí!</div></div>`;
@@ -1981,8 +2019,6 @@ async function cargarMiRutina(clienteId) {
   }
 
   const dias = rutina.datos.dias || [];
-  // Init checkin bar
-  setTimeout(() => initCheckinBar(clienteId), 100);
   cont.innerHTML = `
     <div style="background:var(--navy);padding:1.2rem 1.5rem;margin-bottom:1.5rem;display:flex;align-items:center;justify-content:space-between">
       <div>
@@ -1994,8 +2030,8 @@ async function cargarMiRutina(clienteId) {
     ${dias.map((dia, i) => {
       if (dia.descanso) return `<div class="rutina-dia descanso"><div class="rutina-dia-header" style="cursor:default"><div class="rutina-dia-name">Día ${i+1} — ${dia.nombre}</div><span style="font-size:0.72rem;color:#6b3fa0">🛌 Descanso</span></div></div>`;
       const allEx = [...(dia.calentamiento||[]), ...(dia.ejercicios||[])];
-      return `<div class="rutina-dia" id="rdía-${i}" onclick="toggleRutinaDia(this)">
-        <div class="rutina-dia-header">
+      return `<div class="rutina-dia open" id="rdía-${i}">
+        <div class="rutina-dia-header" onclick="toggleRutinaDia(this.parentElement)">
           <div class="rutina-dia-name">Día ${i+1} — ${dia.nombre}</div>
           <span style="font-size:0.72rem;color:var(--gray)">${allEx.length} ejercicios</span>
         </div>
@@ -2010,13 +2046,51 @@ async function cargarMiRutina(clienteId) {
           ` : ''}
         </div>
       </div>`;
+    }).join('')}</div>`;
+
+  setTimeout(() => initCheckinBar(clienteId), 100);
+}
+
+function mostrarMiRutina(idx) {
+  const rutinas = window._misRutinas || [];
+  const r = rutinas[idx];
+  if (!r || !r.datos) return;
+  rutinas.forEach((_,i) => {
+    const btn = document.getElementById('btn-rutina-cli-'+i);
+    if (btn) btn.className = 'btn btn-sm '+(i===idx?'btn-primary':'btn-secondary');
+  });
+  const dias = r.datos.dias || [];
+  const cont = document.getElementById('rutina-cliente-container');
+  if (!cont) return;
+  cont.innerHTML = `
+    <div style="background:var(--navy);padding:1.2rem 1.5rem;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-family:var(--display);font-size:0.6rem;font-weight:700;letter-spacing:3px;color:var(--blue2);margin-bottom:4px">RUTINA MENSUAL</div>
+        <div style="font-family:var(--display);font-size:1rem;font-weight:900;color:#fff">${r.mes||''}</div>
+      </div>
+      <div style="font-size:0.72rem;color:rgba(255,255,255,0.4)">${r.fase||''}</div>
+    </div>
+    ${dias.map((dia, i) => {
+      if (dia.descanso) return `<div class="rutina-dia descanso"><div class="rutina-dia-header" style="cursor:default"><div class="rutina-dia-name">Día ${i+1} — ${dia.nombre}</div><span style="font-size:0.72rem;color:#6b3fa0">🛌 Descanso</span></div></div>`;
+      const allEx = [...(dia.calentamiento||[]), ...(dia.ejercicios||[])];
+      return `<div class="rutina-dia open" id="rdía-${i}">
+        <div class="rutina-dia-header" onclick="toggleRutinaDia(this.parentElement)">
+          <div class="rutina-dia-name">Día ${i+1} — ${dia.nombre}</div>
+          <span style="font-size:0.72rem;color:var(--gray)">${allEx.length} ejercicios</span>
+        </div>
+        <div class="rutina-dia-body">
+          ${dia.calentamiento&&dia.calentamiento.length ? `<div style="font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--amber);margin:0.8rem 0 0.5rem">🔥 Calentamiento</div>${dia.calentamiento.map((e,ei) => buildClienteExRow(e, `c-${i}-${ei}`)).join('')}` : ''}
+          ${dia.ejercicios&&dia.ejercicios.length ? `<div style="font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--blue);margin:0.8rem 0 0.5rem">💪 Sesión principal</div>${dia.ejercicios.map((e,ei) => buildClienteExRow(e, `e-${i}-${ei}`)).join('')}` : ''}
+        </div>
+      </div>`;
     }).join('')}`;
+  setTimeout(() => initCheckinBar(r.cliente_id), 100);
 }
 
 function buildClienteExRow(e, key) {
   if (!e.nombre) return '';
-  return `<div class="ex-check-row" id="exrow-${key}" onclick="toggleClienteEx(this)">
-    <div class="ex-checkbox"></div>
+  return `<div class="ex-check-row" id="exrow-${key}">
+    <div class="ex-checkbox" onclick="toggleClienteEx(this.parentElement)"></div>
     <span class="ex-check-name">${e.nombre}</span>
     <span class="ex-check-info">${e.series||''}${e.series&&e.reps?' × ':''}${e.reps||''} ${e.descanso?'· '+e.descanso:''}</span>
   </div>`;
@@ -2034,39 +2108,92 @@ function toggleClienteEx(el) {
 
 async function cargarMiDieta(clienteId) {
   const cont = document.getElementById('cliente-mi-dieta');
-  const { data } = await sb.from('planes_nutricionales').select('*').eq('cliente_id', clienteId).order('semana', {ascending:false}).limit(1);
-  const plan = data && data[0];
+  const { data } = await sb.from('planes_nutricionales').select('*').eq('cliente_id', clienteId).order('semana', {ascending:true});
+  const planes = data || [];
 
-  if (!plan) {
+  if (!planes.length) {
     cont.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🥗</div><div class="empty-state-text">Tu coach aún no ha publicado tu plan nutricional.</div></div>`;
     return;
   }
 
+  // Si hay varios planes, mostrar selector de mes
+  let selectorHtml = '';
+  if (planes.length > 1) {
+    selectorHtml = `
+      <div style="display:flex;gap:0.5rem;margin-bottom:1.5rem;flex-wrap:wrap">
+        ${planes.map((p,pi) => `
+          <button onclick="mostrarMiPlanNutri(${pi})" id="btn-plan-${pi}"
+            class="btn btn-sm ${pi===planes.length-1?'btn-primary':'btn-secondary'}">
+            ${p.mes||'Plan '+(pi+1)}
+          </button>`).join('')}
+      </div>`;
+  }
+
+  cont.innerHTML = selectorHtml + `<div id="plan-nutri-cliente"></div>`;
+
+  // Guardar planes en variable global para cambiar entre ellos
+  window._misPlanesNutri = planes;
+
+  // Mostrar el más reciente por defecto
+  mostrarMiPlanNutri(planes.length - 1);
+}
+
+function mostrarMiPlanNutri(idx) {
+  const planes = window._misPlanesNutri || [];
+  const plan = planes[idx];
+  if (!plan) return;
+
+  // Actualizar botones activos
+  planes.forEach((_,i) => {
+    const btn = document.getElementById('btn-plan-'+i);
+    if (btn) {
+      btn.className = 'btn btn-sm ' + (i === idx ? 'btn-primary' : 'btn-secondary');
+    }
+  });
+
   const comidas = plan.datos?.comidas || [];
-  cont.innerHTML = `
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.8rem;margin-bottom:1.5rem">
-      <div style="background:var(--white);border:1px solid var(--border);padding:1rem;text-align:center"><div style="font-family:var(--display);font-size:1.4rem;font-weight:900;color:#ef4444">${plan.proteinas||'—'}</div><div style="font-size:0.58rem;color:var(--gray);text-transform:uppercase;letter-spacing:1px">Proteínas g</div></div>
-      <div style="background:var(--white);border:1px solid var(--border);padding:1rem;text-align:center"><div style="font-family:var(--display);font-size:1.4rem;font-weight:900;color:#f59e0b">${plan.carbohidratos||'—'}</div><div style="font-size:0.58rem;color:var(--gray);text-transform:uppercase;letter-spacing:1px">Carbos g</div></div>
-      <div style="background:var(--white);border:1px solid var(--border);padding:1rem;text-align:center"><div style="font-family:var(--display);font-size:1.4rem;font-weight:900;color:#10b981">${plan.grasas||'—'}</div><div style="font-size:0.58rem;color:var(--gray);text-transform:uppercase;letter-spacing:1px">Grasas g</div></div>
-      <div style="background:var(--navy);border:1px solid var(--border);padding:1rem;text-align:center"><div style="font-family:var(--display);font-size:1.4rem;font-weight:900;color:#fff">${plan.calorias||'—'}</div><div style="font-size:0.58rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px">Kcal</div></div>
+  document.getElementById('plan-nutri-cliente').innerHTML = `
+    <div style="background:var(--navy);padding:1rem 1.2rem;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-family:var(--display);font-size:0.55rem;font-weight:700;letter-spacing:3px;color:var(--blue2);margin-bottom:3px">PLAN NUTRICIONAL</div>
+        <div style="font-family:var(--display);font-size:1rem;font-weight:900;color:#fff">${plan.mes||'Plan '+(idx+1)}</div>
+      </div>
+      <div style="font-family:var(--display);font-size:1.2rem;font-weight:900;color:#fff">${plan.calorias||'—'} <span style="font-size:0.65rem;color:rgba(255,255,255,0.4);font-family:var(--body);font-weight:400">kcal</span></div>
     </div>
-    ${comidas.map((c,ci) => `
-      <div style="background:var(--white);border:1px solid var(--border);margin-bottom:0.8rem;overflow:hidden">
-        <div style="background:#f8faff;padding:0.8rem 1.2rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:1rem;cursor:pointer" onclick="this.parentElement.querySelector('.meal-items').style.display = this.parentElement.querySelector('.meal-items').style.display==='none'?'block':'none'">
-          <span style="font-family:var(--display);font-size:0.65rem;font-weight:700;letter-spacing:2px;color:var(--blue)">${c.hora||''}</span>
-          <span style="font-family:var(--display);font-size:0.85rem;font-weight:900;flex:1">${c.nombre||'Comida'}</span>
-          <div style="width:20px;height:20px;border:2px solid var(--border);border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.7rem" onclick="event.stopPropagation();toggleComidaCheck(this)"></div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.6rem;margin-bottom:1.2rem">
+      <div style="background:var(--white);border:1px solid var(--border);padding:0.8rem;text-align:center">
+        <div style="font-family:var(--display);font-size:1.3rem;font-weight:900;color:#ef4444">${plan.proteinas||'—'}</div>
+        <div style="font-size:0.55rem;color:var(--gray);text-transform:uppercase;letter-spacing:1px;margin-top:2px">Proteínas g</div>
+      </div>
+      <div style="background:var(--white);border:1px solid var(--border);padding:0.8rem;text-align:center">
+        <div style="font-family:var(--display);font-size:1.3rem;font-weight:900;color:#f59e0b">${plan.carbohidratos||'—'}</div>
+        <div style="font-size:0.55rem;color:var(--gray);text-transform:uppercase;letter-spacing:1px;margin-top:2px">Carbos g</div>
+      </div>
+      <div style="background:var(--white);border:1px solid var(--border);padding:0.8rem;text-align:center">
+        <div style="font-family:var(--display);font-size:1.3rem;font-weight:900;color:#10b981">${plan.grasas||'—'}</div>
+        <div style="font-size:0.55rem;color:var(--gray);text-transform:uppercase;letter-spacing:1px;margin-top:2px">Grasas g</div>
+      </div>
+    </div>
+    ${comidas.length ? comidas.map((c,ci) => `
+      <div style="background:var(--white);border:1px solid var(--border);margin-bottom:0.6rem;overflow:hidden">
+        <div style="background:#f8faff;padding:0.8rem 1.2rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:1rem;cursor:pointer"
+          onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+          <span style="font-family:var(--display);font-size:0.62rem;font-weight:700;letter-spacing:2px;color:var(--blue)">${c.hora||''}</span>
+          <span style="font-family:var(--display);font-size:0.82rem;font-weight:900;flex:1">${c.nombre||'Comida'}</span>
+          <div style="width:20px;height:20px;border:2px solid var(--border);border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.7rem;flex-shrink:0" onclick="event.stopPropagation();toggleComidaCheck(this)"></div>
         </div>
         <div class="meal-items" style="padding:0.8rem 1.2rem">
-          ${(c.items||[]).map((item,ii) => item.nombre ? `
-            <div class="ex-check-row" onclick="toggleClienteEx(this)">
-              <div class="ex-checkbox"></div>
+          ${(c.items||[]).filter(i=>i.nombre).map(item => `
+            <div class="ex-check-row">
+              <div class="ex-checkbox" onclick="toggleClienteEx(this.parentElement)"></div>
               <span class="ex-check-name">${item.nombre}</span>
               <span class="ex-check-info">${item.cantidad||''} ${item.proteinas?'P:'+item.proteinas+'g':''} ${item.carbos?'C:'+item.carbos+'g':''}</span>
-            </div>` : '').join('')}
+            </div>`).join('')}
           ${c.nota ? `<div style="background:var(--bg);border-left:3px solid var(--blue);padding:0.5rem 0.8rem;margin-top:0.5rem;font-size:0.75rem;color:var(--gray)">${c.nota}</div>` : ''}
         </div>
-      </div>`).join('')}`;
+      </div>`).join('')
+    : `<div style="text-align:center;padding:2rem;color:var(--gray);font-size:0.82rem">Este plan aún no tiene comidas.</div>`}
+  `;
 }
 
 function toggleComidaCheck(btn) {
