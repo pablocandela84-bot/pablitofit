@@ -44,12 +44,30 @@
     .cursor-ring.expand { width: 0; height: 0; opacity: 0; }
     .cursor.text-mode { width: 3px; height: 30px; border-radius: 2px; background: #1a3fa0; }
 
-    /* ── NOISE TEXTURE ── */
-    body::before {
-      content: '';
-      position: fixed; inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-      pointer-events: none; z-index: 9990;
+    /* ── MATRIX EFFECT ── */
+    .matrix-bg {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: transparent;
+      opacity: 0.05;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+      font-family: 'Courier New', monospace;
+      color: #1a3fa0;
+      font-size: 14px;
+      line-height: 1.2;
+    }
+    
+    .matrix-char {
+      position: absolute;
+      opacity: 0.15;
+      animation: matrixFall linear infinite;
+    }
+    
+    @keyframes matrixFall {
+      to { transform: translateY(100vh) rotateZ(360deg); opacity: 0; }
     }
 
     /* ── MARQUEE ── */
@@ -85,7 +103,7 @@
     .logo {
       font-family: var(--font-display);
       font-size: 1.1rem; font-weight: 900;
-      letter-spacing: 6px; color: var(--black);
+      letter-spacing: 6px; color: #0d1b3e !important;
       text-transform: uppercase;
     }
     .logo .logo-dot {
@@ -151,7 +169,51 @@
       font-size: clamp(3rem, 7.5vw, 8.5rem);
       font-weight: 900; line-height: 0.9;
       letter-spacing: -3px; margin-bottom: 2.5rem;
-      opacity: 0; animation: fadeUp 0.8s 0.5s forwards;
+      opacity: 0; animation: slideInRotate 1s 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards;
+      color: #0d1b3e !important;
+      perspective: 1000px;
+    }
+    
+    @keyframes slideInRotate {
+      from {
+        opacity: 0;
+        transform: translateY(50px) rotateX(90deg) scale(0.8);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) rotateX(0) scale(1);
+      }
+    }
+    
+    h1::before, h1::after {
+      content: attr(data-text);
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.8;
+    }
+    
+    h1::before {
+      animation: glitch 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+      color: #1a3fa0;
+      z-index: -1;
+    }
+    
+    h1::after {
+      animation: glitch 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite reverse;
+      color: #ff0080;
+      z-index: -2;
+    }
+    
+    @keyframes glitch {
+      0% { clip-path: inset(40% 0 61% 0); transform: translate(0); }
+      20% { clip-path: inset(92% 0 1% 0); transform: translate(-2px, 2px); }
+      40% { clip-path: inset(43% 0 1% 0); transform: translate(-2px, -2px); }
+      60% { clip-path: inset(25% 0 58% 0); transform: translate(2px, -2px); }
+      80% { clip-path: inset(54% 0 7% 0); transform: translate(2px, 2px); }
+      100% { clip-path: inset(58% 0 43% 0); transform: translate(0); }
     }
     h1 .red { color: var(--accent); }
     h1 .stroke {
@@ -163,7 +225,7 @@
       opacity: 0; animation: fadeUp 0.8s 0.8s forwards;
     }
     .hero-desc { max-width: 320px; font-size: 0.88rem; line-height: 1.8; color: var(--gray); }
-    .hero-desc strong { color: var(--black); }
+    .hero-desc strong { color: #0d1b3e !important; }
     .btn-hero {
       font-family: var(--font-display); font-size: 0.8rem; font-weight: 700;
       letter-spacing: 2px; text-transform: uppercase;
@@ -171,6 +233,12 @@
       border: none; padding: 1.2rem 3rem; cursor: none;
       transition: all 0.3s; position: relative; overflow: hidden;
       white-space: nowrap;
+      box-shadow: 0 0 20px rgba(26,63,160,0.3);
+    }
+    
+    .btn-hero:hover {
+      box-shadow: 0 0 40px rgba(26,63,160,0.6), 0 0 80px rgba(26,63,160,0.3);
+      transform: scale(1.05);
     }
     .btn-hero::before {
       content: ''; position: absolute; inset: 0;
@@ -228,10 +296,34 @@
     .plan-card {
       padding: 3rem 2.5rem; border-right: 1px solid var(--border);
       position: relative; overflow: hidden; cursor: none;
-      transition: background 0.4s cubic-bezier(0.76,0,0.24,1);
+      transition: all 0.4s cubic-bezier(0.76,0,0.24,1);
+      transform: perspective(1000px);
+    }
+    
+    .plan-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent 30%, rgba(26,63,160,0.1) 50%, transparent 70%);
+      transform: rotate(45deg);
+      animation: shimmer 3s infinite;
+      pointer-events: none;
+    }
+    
+    @keyframes shimmer {
+      0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+      100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
     }
     .plan-card:last-child { border-right: none; }
-    .plan-card:hover { background: #1a3fa0; color: var(--bg); }
+    .plan-card:hover { 
+      background: #1a3fa0; 
+      color: var(--bg);
+      transform: translateY(-12px) scale(1.02) rotateX(5deg);
+      box-shadow: 0 20px 40px rgba(26,63,160,0.3);
+    }
     .plan-card.touched { background: #1a3fa0; color: var(--bg); }
     .plan-card-fill {
       position: absolute; inset: 0; background: var(--accent);
@@ -685,12 +777,33 @@
     .online-card:hover .oc-desc { color: rgba(255,255,255,0.75) !important; }
 
     /* ── SCROLL REVEAL ── */
-    .reveal { opacity: 0; transform: translateY(40px); transition: all 0.9s cubic-bezier(0.16,1,0.3,1); }
-    .reveal.visible { opacity: 1; transform: translateY(0); }
-    .reveal-left { opacity: 0; transform: translateX(-40px); transition: all 0.9s cubic-bezier(0.16,1,0.3,1); }
-    .reveal-left.visible { opacity: 1; transform: translateX(0); }
-    .reveal-right { opacity: 0; transform: translateX(40px); transition: all 0.9s cubic-bezier(0.16,1,0.3,1); }
-    .reveal-right.visible { opacity: 1; transform: translateX(0); }
+    .reveal { 
+      opacity: 0; 
+      transform: translateY(60px) scale(0.9); 
+      transition: all 1s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .reveal.visible { 
+      opacity: 1; 
+      transform: translateY(0) scale(1);
+    }
+    .reveal-left { 
+      opacity: 0; 
+      transform: translateX(-80px) rotateY(45deg); 
+      transition: all 1s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .reveal-left.visible { 
+      opacity: 1; 
+      transform: translateX(0) rotateY(0);
+    }
+    .reveal-right { 
+      opacity: 0; 
+      transform: translateX(80px) rotateY(-45deg); 
+      transition: all 1s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .reveal-right.visible { 
+      opacity: 1; 
+      transform: translateX(0) rotateY(0);
+    }
 
     @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
 
@@ -745,28 +858,31 @@
     }
   
     /* DARK THEME FIXES */
-    body { color: #e0e0d0; }
-    .hero-tag { color: #555555; border-color: #1a1a1a; }
-    .hero-desc { color: #555555; }
-    .hero-desc strong { color: #e0e0d0; }
-    .hero-social a { color: #444; }
+    body { color: #0d1b3e; }
+    .hero-tag { color: #7a8aaa; border-color: #d0d8f0; }
+    .hero-desc { color: #7a8aaa; }
+    .hero-desc strong { color: #0d1b3e !important; }
+    .hero-social a { color: #0d1b3e; }
     .hero-social a:hover { color: var(--accent); }
-    .logo { color: #e0e0d0; }
-    .nav-link { color: #e0e0d0; }
-    .btn-nav { color: #e0e0d0; border-color: #e0e0d0; }
+    .logo { color: #0d1b3e !important; }
+    .nav-link { color: #0d1b3e; }
+    .btn-nav { color: #0d1b3e; border-color: #0d1b3e; }
     .btn-nav:hover { color: transparent; }
     .btn-nav::before { background: #1a3fa0; color: #ffffff; }
-    .scroll-indicator span { color: #444; }
-    .stat-l { color: #444; }
-    .stat-n { color: #e0e0d0; }
-    .section-label { color: #444; }
-    .section-h2 { color: #e0e0d0; }
-    .plan-num { color: #444; }
-    .plan-name { color: #e0e0d0; }
-    .plan-desc { color: #444; }
+    .scroll-indicator span { color: #7a8aaa; }
+    .stat-l { color: #7a8aaa; }
+    .stat-n { color: #0d1b3e; }
+    .section-label { color: #7a8aaa; }
+    .section-h2 { color: #0d1b3e !important; }
+    .plan-num { color: #7a8aaa; }
+    .plan-name { color: #0d1b3e !important; }
+    .plan-desc { color: #7a8aaa; }
   </style>
 </head>
 <body>
+
+<!-- MATRIX BACKGROUND -->
+<div class="matrix-bg" id="matrixBg"></div>
 
 <!-- CURSOR -->
 <div class="cursor" id="cursor"></div>
@@ -814,7 +930,7 @@
       <span class="tag-dot"></span>
       Coach Online · Entrenamiento &amp; Nutrición
     </div>
-    <h1>DEJA DE<br>INTENTARLO.<br><span class="red">HAZLO</span></h1>
+    <h1 data-text="DEJA DE INTENTARLO. HAZLO">DEJA DE<br>INTENTARLO.<br><span class="red">HAZLO</span></h1>
     <div class="hero-bottom">
       <div class="hero-desc">
         <strong>Pablito</strong> — coach online de entrenamiento y nutrición. Sin importar dónde estés. Método, seguimiento y resultados reales durante 6 o 12 meses.
@@ -1153,7 +1269,7 @@
       <div style="position:absolute;inset:0;background:#1a3fa0;transform:translateY(100%);transition:transform 0.5s cubic-bezier(0.76,0,0.24,1);" class="online-fill"></div>
       <div style="position:relative;z-index:1;">
         <div style="font-size:2.5rem;margin-bottom:1.5rem;">📱</div>
-        <div style="font-family:var(--font-display);font-size:1.3rem;font-weight:900;letter-spacing:-0.5px;margin-bottom:0.8rem;color:#e8eef8;transition:color 0.3s;" class="oc-title">Todo desde tu móvil</div>
+        <div style="font-family:var(--font-display);font-size:1.3rem;font-weight:900;letter-spacing:-0.5px;margin-bottom:0.8rem;color:#fff;transition:color 0.3s;" class="oc-title">Todo desde tu móvil</div>
         <div style="font-size:0.82rem;line-height:1.8;color:rgba(255,255,255,0.45);transition:color 0.3s;" class="oc-desc">Recibes tu rutina, tu plan nutricional y el seguimiento mensual por WhatsApp o app. Entrenas cuando y donde quieras.</div>
       </div>
     </div>
@@ -1462,6 +1578,32 @@ function cerrarModal(){
 
 function cerrarModalFuera(e){
   if(e.target.id==='modalOverlay') cerrarModal();
+}
+
+// ── MATRIX EFFECT ──
+const matrixChars = '01アイウエオカキクケコサシスセソタチツテト';
+const matrixBg = document.getElementById('matrixBg');
+if(matrixBg) {
+  for(let i=0; i<20; i++) {
+    const char = document.createElement('div');
+    char.className = 'matrix-char';
+    char.textContent = matrixChars[Math.floor(Math.random() * matrixChars.length)];
+    char.style.left = Math.random() * 100 + '%';
+    char.style.top = Math.random() * -100 + 'px';
+    char.style.animationDuration = (Math.random() * 3 + 2) + 's';
+    char.style.animationDelay = Math.random() * 2 + 's';
+    matrixBg.appendChild(char);
+  }
+  setInterval(() => {
+    const char = document.createElement('div');
+    char.className = 'matrix-char';
+    char.textContent = matrixChars[Math.floor(Math.random() * matrixChars.length)];
+    char.style.left = Math.random() * 100 + '%';
+    char.style.top = '-20px';
+    char.style.animationDuration = (Math.random() * 3 + 2) + 's';
+    matrixBg.appendChild(char);
+    setTimeout(() => char.remove(), 5000);
+  }, 500);
 }
 
 // ── PARALLAX HERO ──
