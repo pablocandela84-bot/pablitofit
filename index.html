@@ -179,23 +179,150 @@
     }
     .btn-hero:hover::before { transform: translateX(0); }
     .btn-hero span { position: relative; z-index: 1; }
-    .hero-social { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
-    .hero-social a { font-size: 0.65rem; letter-spacing: 1px; color: var(--gray); text-decoration: none; transition: color 0.2s; cursor: none; }
-    .hero-social a:hover { color: var(--accent); }
+    .hero-social {
+      display: flex; gap: 1.5rem; font-size: 0.72rem; letter-spacing: 1px; text-transform: uppercase;
+    }
+    .hero-social a { color: var(--black); text-decoration: none; opacity: 0.6; transition: opacity 0.2s; }
+    .hero-social a:hover { opacity: 1; }
+    .scroll-indicator {
+      position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 1rem;
+      opacity: 0; animation: fadeUp 0.8s 1.2s forwards;
+    }
+    .scroll-indicator span {
+      font-size: 0.6rem; letter-spacing: 3px; text-transform: uppercase; color: var(--gray);
+    }
+    .scroll-line {
+      width: 1.5px; height: 30px; background: var(--accent);
+      animation: scrollPulse 2s ease-in-out infinite;
+    }
+    @keyframes scrollPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
+    /* ── STATS ── */
+    .stats {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      border-bottom: 1px solid var(--border);
+    }
+    .stat {
+      padding: 3rem 2.5rem; border-right: 1px solid var(--border);
+      position: relative; cursor: none; overflow: hidden;
+    }
+    .stat:last-child { border-right: none; }
+    .stat-fill {
+      position: absolute; inset: 0; background: var(--accent);
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .stat.touched .stat-fill { opacity: 0.08; }
+    .stat-inner {
+      position: relative; z-index: 1; display: flex; flex-direction: column; gap: 0.8rem;
+    }
+    .stat-n { font-family: var(--font-display); font-size: 2.2rem; font-weight: 900; letter-spacing: -1px; color: var(--black); }
+    .stat-l { font-size: 0.68rem; letter-spacing: 2px; text-transform: uppercase; color: var(--gray); }
+
+    /* ── PLANES ── */
+    .planes-section { border-bottom: 1px solid var(--border); }
+    .planes-header { padding: 3rem 2.5rem; display: flex; align-items: flex-end; justify-content: space-between; gap: 2rem; }
+    .section-label { font-size: 0.58rem; letter-spacing: 3px; text-transform: uppercase; color: var(--gray); margin-bottom: 1rem; }
+    .section-h2 { font-family: var(--font-display); font-size: 2.8rem; font-weight: 900; letter-spacing: -1px; line-height: 0.95; color: var(--black); }
+    .planes-grid { display: grid; grid-template-columns: repeat(3,1fr); }
+    .plan-card {
+      padding: 3rem 2.5rem; border-right: 1px solid var(--border);
+      position: relative; overflow: hidden; cursor: none;
+      transition: background 0.4s cubic-bezier(0.76,0,0.24,1);
+    }
+    .plan-card:last-child { border-right: none; }
+    .plan-card:hover { background: #1a3fa0; color: var(--bg); }
+    .plan-card.touched { background: #1a3fa0; color: var(--bg); }
+    .plan-card-fill {
+      position: absolute; inset: 0; background: var(--accent);
+      transform: translateY(100%); transition: transform 0.5s cubic-bezier(0.76,0,0.24,1);
+    }
+    .plan-card:hover .plan-card-fill { transform: translateY(0); }
+    .plan-card:hover .plan-inner { color: var(--bg); }
+    .plan-inner {
+      position: relative; z-index: 1; display: flex; flex-direction: column; gap: 1.5rem;
+    }
+    .plan-num { font-size: 0.58rem; letter-spacing: 2px; text-transform: uppercase; color: var(--gray); transition: color 0.3s; }
+    .plan-card:hover .plan-num { color: rgba(255,255,255,0.7); }
+    .plan-icon { font-size: 2.8rem; }
+    .plan-name { font-family: var(--font-display); font-size: 1.6rem; font-weight: 900; letter-spacing: -0.5px; transition: color 0.3s; }
+    .plan-desc { font-size: 0.82rem; line-height: 1.8; color: var(--gray); transition: color 0.3s; }
+    .plan-card:hover .plan-desc { color: rgba(255,255,255,0.75); }
+    .plan-badge {
+      display: inline-block; background: var(--accent); color: #fff;
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+      padding: 0.5rem 1rem; transition: background 0.3s;
+    }
+    .plan-card:hover .plan-badge { background: rgba(255,255,255,0.2); }
+    .plan-cta {
+      opacity: 0; transform: translateY(10px); transition: all 0.4s cubic-bezier(0.76,0,0.24,1);
+      position: absolute; bottom: 2.5rem; right: 2.5rem;
+      font-family: var(--font-display); font-size: 0.75rem; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase;
+      background: transparent; color: var(--gray); border: none; cursor: none;
+    }
+    .plan-card:hover .plan-cta { opacity: 1; transform: translateY(0); color: #fff; }
+
+    /* ── PROCESO ── */
+    .proceso-section { border-bottom: 1px solid var(--border); }
+    .proceso-header { padding: 3rem 2.5rem; display: flex; align-items: flex-end; justify-content: space-between; gap: 2rem; }
+    .proceso-item { border-bottom: 1px solid var(--border); }
+    .proceso-trigger {
+      width: 100%; padding: 2.5rem; border: none; background: none;
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: none; text-align: left; transition: background 0.3s;
+      font-family: var(--font-body);
+    }
+    .proceso-trigger:hover { background: rgba(26,63,160,0.04); }
+    .proceso-trigger.open { background: rgba(26,63,160,0.08); }
+    .proceso-left { display: flex; flex-direction: column; gap: 0.5rem; }
+    .proceso-step { font-size: 0.58rem; letter-spacing: 2px; text-transform: uppercase; color: var(--gray); }
+    .proceso-title { font-family: var(--font-display); font-size: 1.3rem; font-weight: 900; letter-spacing: -0.5px; color: var(--black); }
+    .proceso-icon { font-size: 1.2rem; color: var(--accent); transition: transform 0.4s; }
+    .proceso-trigger.open .proceso-icon { transform: rotate(45deg); }
+    .proceso-body {
+      max-height: 0; overflow: hidden; transition: max-height 0.5s cubic-bezier(0.76,0,0.24,1);
+    }
+    .proceso-body.open { max-height: 500px; }
+    .proceso-content {
+      padding: 0 2.5rem 2.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;
+    }
+    .proceso-desc { font-size: 0.88rem; line-height: 1.9; color: var(--gray); }
+    .proceso-bullets { display: flex; flex-direction: column; gap: 1rem; }
+    .proceso-bullet { display: flex; align-items: flex-start; gap: 1rem; font-size: 0.82rem; line-height: 1.8; color: var(--gray); }
+    .proceso-bullet::before { content: '→'; color: var(--accent); font-weight: 900; flex-shrink: 0; }
+
+    /* ── BEFORE/AFTER ── */
+    .ba-section { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--border); }
+    .ba-col { padding: 3rem 2.5rem; }
+    .ba-col:first-child { border-right: 1px solid var(--border); }
+    .ba-head { font-family: var(--font-display); font-size: 1.8rem; font-weight: 900; letter-spacing: -1px; margin-bottom: 2.5rem; }
+    .ba-col:first-child .ba-head { color: var(--gray); }
+    .ba-col:last-child .ba-head { color: var(--accent); }
+    .ba-item {
+      display: flex; align-items: flex-start; gap: 1rem;
+      padding: 1.2rem 0; border-bottom: 1px solid var(--border);
+      font-size: 0.88rem; color: var(--gray);
+      transform: translateX(0);
+      transition: transform 0.3s, color 0.3s;
+    }
+    .ba-item:hover { transform: translateX(6px); color: var(--black); }
+    .ba-col:last-child .ba-item:hover { color: var(--accent); }
+    .ba-item:last-child { border-bottom: none; }
+    .ba-icon { flex-shrink: 0; }
 
     /* ── CARRUSEL DE VÍDEOS ── */
     .videos-section {
       border-bottom: 1px solid var(--border);
       padding: 5rem 2.5rem;
-      background: var(--navy);
+      background: #0d1b3e;
       position: relative; overflow: hidden;
     }
     .videos-section::before {
       content: 'TÉCNICA';
       position: absolute; right: -20px; top: 50%;
       transform: translateY(-50%);
-      font-family: var(--display); font-size: 12rem; font-weight: 900;
+      font-family: var(--font-display); font-size: 12rem; font-weight: 900;
       color: rgba(255,255,255,0.03); pointer-events: none;
       letter-spacing: -5px; white-space: nowrap;
     }
@@ -205,11 +332,11 @@
       color: rgba(255,255,255,0.4); margin-bottom: 0.8rem;
     }
     .videos-title {
-      font-family: var(--display); font-size: clamp(1.8rem, 4vw, 3rem);
+      font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 3rem);
       font-weight: 900; letter-spacing: -1px; line-height: 1;
       color: #fff;
     }
-    .videos-title span { color: var(--blue2); }
+    .videos-title span { color: var(--accent); }
     .videos-subtitle {
       font-size: 0.88rem; color: rgba(255,255,255,0.5);
       margin-top: 0.8rem; max-width: 400px; line-height: 1.7;
@@ -228,7 +355,7 @@
       position: relative; padding-bottom: 177.7%; /* 9:16 ratio */
       overflow: hidden; background: #111;
     }
-    .video-wrapper iframe {
+    .video-wrapper video {
       position: absolute; inset: 0;
       width: 100%; height: 100%; border: none;
     }
@@ -242,10 +369,10 @@
     }
     .video-num {
       font-size: 0.58rem; letter-spacing: 3px; text-transform: uppercase;
-      color: var(--blue2); margin-bottom: 0.3rem;
+      color: var(--accent); margin-bottom: 0.3rem;
     }
     .video-titulo {
-      font-family: var(--display); font-size: 0.85rem; font-weight: 900;
+      font-family: var(--font-display); font-size: 0.85rem; font-weight: 900;
       color: #fff; letter-spacing: -0.3px; line-height: 1.3;
     }
 
@@ -265,175 +392,6 @@
       }
     }
 
-    /* ── SCROLL LINE ── */
-    .scroll-indicator {
-      position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
-      display: flex; flex-direction: column; align-items: center; gap: 8px;
-      opacity: 0; animation: fadeUp 1s 1.5s forwards;
-    }
-    .scroll-indicator span { font-size: 0.55rem; letter-spacing: 3px; text-transform: uppercase; color: var(--gray); }
-    .scroll-line { width: 1px; height: 60px; background: linear-gradient(to bottom, var(--gray), transparent); animation: scrollAnim 2s ease-in-out infinite; }
-    @keyframes scrollAnim { 0%,100%{transform:scaleY(1);transform-origin:top} 50%{transform:scaleY(0.3);transform-origin:bottom} }
-
-    /* ── SECTION LABELS ── */
-    .section-label { font-size: 0.58rem; letter-spacing: 4px; text-transform: uppercase; color: var(--gray); margin-bottom: 1rem; }
-    .section-h2 { font-family: var(--font-display); font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 900; letter-spacing: -2px; line-height: 0.95; }
-
-    /* ── STATS ── */
-    .stats {
-      display: grid; grid-template-columns: repeat(4,1fr);
-      border-bottom: 1px solid var(--border);
-    }
-    .stat {
-      padding: 3rem 2.5rem; border-right: 1px solid var(--border);
-      position: relative; overflow: hidden; cursor: none;
-    }
-    .stat:last-child { border-right: none; }
-    .stat-fill {
-      position: absolute; inset: 0; background: #1a3fa0;
-      transform: translateY(100%);
-      transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1);
-    }
-    .stat:hover .stat-fill { transform: translateY(0); }
-    .stat-inner { position: relative; z-index: 1; }
-    .stat:hover .stat-n, .stat:hover .stat-l { color: #ffffff; }
-    .stat-n {
-      font-family: var(--font-display); font-size: 3rem; font-weight: 900;
-      letter-spacing: -2px; display: block; margin-bottom: 0.3rem;
-      transition: color 0.3s;
-    }
-    @media (max-width: 768px) {
-      .stat-n { font-size: 2rem; letter-spacing: -1px; }
-      .stat-l { font-size: 0.55rem; }
-      .stat { padding: 1.8rem 1rem; }
-    }
-    .stat-l { font-size: 0.62rem; letter-spacing: 2px; text-transform: uppercase; color: var(--gray); transition: color 0.3s; }
-
-    /* ── PLANES — 3 TARJETAS ── */
-    .planes-section { border-bottom: 1px solid var(--border); }
-    .planes-header {
-      padding: 3rem 2.5rem; border-bottom: 1px solid var(--border);
-      display: flex; align-items: flex-end; justify-content: space-between;
-    }
-    .planes-grid {
-      display: grid; grid-template-columns: repeat(3,1fr);
-    }
-    .plan-card {
-      padding: 3.5rem 2.5rem; border-right: 1px solid var(--border);
-      position: relative; overflow: hidden; cursor: none;
-      background: #ffffff;
-      transition: all 0.4s cubic-bezier(0.76, 0, 0.24, 1);
-    }
-    .plan-card:last-child { border-right: none; }
-    .plan-card-fill {
-      position: absolute; inset: 0; background: #1a3fa0;
-      transform: translateY(100%);
-      transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1);
-    }
-    .plan-card:hover .plan-card-fill { transform: translateY(0); }
-    .plan-inner { position: relative; z-index: 1; }
-    .plan-num { font-size: 0.6rem; letter-spacing: 4px; text-transform: uppercase; color: var(--gray); margin-bottom: 2rem; transition: color 0.3s; }
-    .plan-icon { font-size: 2.5rem; margin-bottom: 1.5rem; }
-    .plan-name { font-family: var(--font-display); font-size: 1.6rem; font-weight: 900; letter-spacing: -1px; margin-bottom: 1rem; color: #0d1b3e; transition: color 0.3s; }
-    .plan-desc { font-size: 0.82rem; line-height: 1.8; color: var(--gray); margin-bottom: 2.5rem; transition: color 0.3s; }
-    .plan-badge {
-      display: inline-block;
-      font-family: var(--font-display); font-size: 0.62rem; font-weight: 700;
-      letter-spacing: 2px; text-transform: uppercase;
-      border: 1px solid #d0d8f0; color: #0d1b3e; padding: 0.5rem 1rem;
-      transition: all 0.3s;
-    }
-    .plan-cta {
-      position: absolute; bottom: 2.5rem; right: 2.5rem;
-      font-family: var(--font-display); font-size: 0.65rem; font-weight: 700;
-      letter-spacing: 2px; text-transform: uppercase;
-      background: #1a3fa0; color: #ffffff;
-      border: none; padding: 0.9rem 1.8rem; cursor: none;
-      transition: all 0.3s; opacity: 0; transform: translateY(10px);
-    }
-    /* Hover igual en las 3 tarjetas */
-    .plan-card:hover .plan-num  { color: rgba(255,255,255,0.5); }
-    .plan-card:hover .plan-name { color: #ffffff; }
-    .plan-card:hover .plan-desc { color: rgba(255,255,255,0.75); }
-    .plan-card:hover .plan-badge { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.5); color: #ffffff; }
-    .plan-card:hover .plan-cta  { opacity: 1; transform: translateY(0); background: #ffffff; color: #1a3fa0; }
-
-    /* ── PROCESO — ACORDEÓN ── */
-    .proceso-section { border-bottom: 1px solid var(--border); }
-    .proceso-header { padding: 3rem 2.5rem; border-bottom: 1px solid var(--border); }
-    .proceso-item {
-      border-bottom: 1px solid var(--border);
-      overflow: hidden;
-    }
-    .proceso-trigger {
-      width: 100%; background: none; border: none; cursor: none;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 2rem 2.5rem; text-align: left;
-      transition: background 0.3s;
-    }
-    .proceso-trigger:hover { background: rgba(0,0,0,0.02); }
-    .proceso-trigger.open { background: #1a3fa0; color: #ffffff; }
-    .proceso-left { display: flex; align-items: center; gap: 2rem; }
-    .proceso-step { font-family: var(--font-display); font-size: 0.6rem; letter-spacing: 4px; text-transform: uppercase; color: var(--gray); min-width: 60px; }
-    .proceso-trigger.open .proceso-step { color: rgba(255,255,255,0.45); }
-    .proceso-title { font-family: var(--font-display); font-size: clamp(1rem, 2.5vw, 1.8rem); font-weight: 900; letter-spacing: -0.5px; }
-    .proceso-icon { font-size: 1.4rem; transition: transform 0.4s cubic-bezier(0.76,0,0.24,1); }
-    .proceso-trigger.open .proceso-icon { transform: rotate(45deg); }
-    .proceso-body {
-      max-height: 0; overflow: hidden;
-      transition: max-height 0.5s cubic-bezier(0.76,0,0.24,1), padding 0.4s;
-      padding: 0 2.5rem;
-    }
-    .proceso-body.open { max-height: 300px; padding: 0 2.5rem 2rem; }
-    .proceso-content { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; padding: 1.5rem 0; }
-    .proceso-desc { font-size: 0.88rem; line-height: 1.9; color: var(--gray); }
-    .proceso-bullets { display: flex; flex-direction: column; gap: 0.8rem; }
-    .proceso-bullet { font-size: 0.8rem; color: var(--gray); display: flex; align-items: center; gap: 10px; }
-    .proceso-bullet::before { content: '→'; color: var(--accent); font-weight: 700; }
-
-    /* ── TRANSFORMACIÓN — BEFORE/AFTER ── */
-    .ba-section {
-      display: grid; grid-template-columns: 1fr 1fr;
-      border-bottom: 1px solid var(--border);
-    }
-    .ba-col { padding: 5rem 2.5rem; }
-    .ba-col:first-child { border-right: 1px solid var(--border); }
-    .ba-head { font-family: var(--font-display); font-size: 1.8rem; font-weight: 900; letter-spacing: -1px; margin-bottom: 2.5rem; }
-    .ba-col:first-child .ba-head { color: var(--gray); }
-    .ba-col:last-child .ba-head { color: var(--accent); }
-    .ba-item {
-      display: flex; align-items: flex-start; gap: 1rem;
-      padding: 1.2rem 0; border-bottom: 1px solid var(--border);
-      font-size: 0.88rem; color: var(--gray);
-      transform: translateX(0);
-      transition: transform 0.3s, color 0.3s;
-    }
-    .ba-item:hover { transform: translateX(6px); color: var(--black); }
-    .ba-col:last-child .ba-item:hover { color: var(--accent); }
-    .ba-item:last-child { border-bottom: none; }
-    .ba-icon { flex-shrink: 0; }
-
-    /* ── TESTIMONIOS ── */
-    .reviews-section { border-bottom: 1px solid var(--border); }
-    .reviews-header { padding: 3rem 2.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: flex-end; justify-content: space-between; }
-    .reviews-grid { display: grid; grid-template-columns: repeat(3,1fr); }
-    .review-box {
-      padding: 3rem 2.5rem; border-right: 1px solid var(--border);
-      transition: background 0.4s cubic-bezier(0.76,0,0.24,1);
-      cursor: none;
-    }
-    .review-box:last-child { border-right: none; }
-    .review-box:hover { background: #1a3fa0; color: var(--bg); }
-    .review-stars { font-size: 0.75rem; color: #1a3fa0; letter-spacing: 3px; margin-bottom: 1.5rem; transition: color 0.3s; }
-    .review-text { font-size: 0.88rem; line-height: 1.9; margin-bottom: 2rem; color: var(--gray); font-style: italic; transition: color 0.3s; }
-    .review-box:hover .review-text { color: rgba(0,0,0,0.7); }
-    .review-author { display: flex; align-items: center; gap: 12px; }
-    .review-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 0.8rem; font-weight: 900; color: #fff; flex-shrink: 0; }
-    .review-name { font-size: 0.8rem; font-weight: 600; }
-    .review-loc { font-size: 0.65rem; color: var(--gray); transition: color 0.3s; }
-    .review-box:hover .review-loc { color: rgba(0,0,0,0.5); }
-
-    /* ── INSTAGRAM STRIP ── */
     /* ── RUEDA GIRATORIA ── */
     .wheel-section {
       border-bottom: 1px solid var(--border);
@@ -617,6 +575,115 @@
     .modal-note { font-size: 0.7rem; color: var(--gray); text-align: center; margin-top: 1rem; line-height: 1.6; }
     .modal-divider { height: 1px; background: var(--border); margin: 1.5rem 0; }
 
+    /* ── QUIZ ── */
+    .quiz-progress-bar {
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: var(--border);
+    }
+    .quiz-progress-fill {
+      height: 100%; background: var(--accent);
+      transition: width 0.3s;
+    }
+    .quiz-header {
+      padding: 1.8rem 2rem 1.2rem;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .quiz-step-label {
+      font-size: 0.58rem; letter-spacing: 3px; text-transform: uppercase; color: var(--gray);
+    }
+    .quiz-close {
+      background: none; border: none; font-size: 1.1rem;
+      cursor: pointer; color: var(--gray); transition: color 0.2s; line-height: 1;
+    }
+    .quiz-close:hover { color: var(--black); }
+    .quiz-body { padding: 2rem; }
+    .quiz-question {
+      font-family: var(--font-display); font-size: 1.3rem; font-weight: 900;
+      letter-spacing: -0.5px; line-height: 1.15; margin-bottom: 0.6rem; color: #0d1b3e;
+    }
+    .quiz-sub {
+      font-size: 0.78rem; color: var(--gray); margin-bottom: 1.6rem; line-height: 1.6;
+    }
+    .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+    .quiz-option {
+      display: flex; align-items: center; gap: 14px;
+      border: 1px solid var(--border); padding: 1rem 1.2rem;
+      cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden;
+      background: #fff;
+    }
+    .quiz-option:hover { border-color: #1a3fa0; }
+    .quiz-option.selected { border-color: #1a3fa0; background: #f0f4ff; }
+    .quiz-option.selected .quiz-opt-dot { background: #1a3fa0; border-color: #1a3fa0; }
+    .quiz-option.selected .quiz-opt-dot::after { opacity: 1; }
+    .quiz-opt-dot {
+      width: 18px; height: 18px; border-radius: 50%;
+      border: 2px solid var(--border); flex-shrink: 0;
+      position: relative; transition: all 0.2s;
+    }
+    .quiz-opt-dot::after {
+      content: ''; position: absolute; top: 3px; left: 3px;
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #fff; opacity: 0; transition: opacity 0.2s;
+    }
+    .quiz-opt-text { font-size: 0.85rem; color: #0d1b3e; line-height: 1.4; }
+    .quiz-opt-emoji { font-size: 1.1rem; flex-shrink: 0; }
+    .quiz-nav {
+      display: flex; gap: 10px; margin-top: 1.6rem; align-items: center;
+    }
+    .quiz-btn-back {
+      background: none; border: 1px solid var(--border);
+      padding: 0.85rem 1.4rem; cursor: pointer; font-size: 0.75rem;
+      color: var(--gray); transition: all 0.2s; flex-shrink: 0;
+      font-family: var(--font-display); letter-spacing: 1px;
+    }
+    .quiz-btn-back:hover { border-color: #0d1b3e; color: #0d1b3e; }
+    .quiz-btn-next {
+      flex: 1; background: #1a3fa0; color: #fff; border: none;
+      padding: 0.95rem; cursor: pointer;
+      font-family: var(--font-display); font-size: 0.8rem; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase;
+      transition: background 0.2s; opacity: 0.4; pointer-events: none;
+    }
+    .quiz-btn-next.active { opacity: 1; pointer-events: auto; }
+    .quiz-btn-next:hover { background: #0d2d8a; }
+    .quiz-result { padding: 2.5rem 2rem; text-align: center; }
+    .quiz-result-icon { font-size: 3.5rem; margin-bottom: 1rem; }
+    .quiz-result-title {
+      font-family: var(--font-display); font-size: 1.5rem; font-weight: 900;
+      letter-spacing: -0.5px; margin-bottom: 0.8rem; color: #0d1b3e;
+    }
+    .quiz-result-desc {
+      font-size: 0.84rem; line-height: 1.8; color: var(--gray);
+      margin-bottom: 2rem; max-width: 360px; margin-left: auto; margin-right: auto;
+    }
+    .quiz-result-wa {
+      width: 100%; background: #1a3fa0; color: #fff; border: none;
+      padding: 1.1rem; cursor: pointer;
+      font-family: var(--font-display); font-size: 0.82rem; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      transition: background 0.2s; margin-bottom: 1rem;
+    }
+    .quiz-result-wa:hover { background: #0d2d8a; }
+    .quiz-result-no {
+      font-size: 0.75rem; color: var(--gray); line-height: 1.7;
+    }
+    .quiz-summary {
+      background: #f0f4ff; padding: 1rem 1.2rem;
+      margin-bottom: 1.5rem; text-align: left;
+      border-left: 3px solid #1a3fa0;
+    }
+    .quiz-summary-item {
+      font-size: 0.75rem; color: #4a5878; padding: 0.25rem 0;
+    }
+    .quiz-summary-item span { color: #0d1b3e; font-weight: 600; }
+
+    /* ── ONLINE CARDS ── */
+    .online-card:hover .online-fill { transform: translateY(0) !important; }
+    .online-card:hover .oc-title { color: #ffffff !important; }
+    .online-card:hover .oc-desc { color: rgba(255,255,255,0.75) !important; }
+
     /* ── SCROLL REVEAL ── */
     .reveal { opacity: 0; transform: translateY(40px); transition: all 0.9s cubic-bezier(0.16,1,0.3,1); }
     .reveal.visible { opacity: 1; transform: translateY(0); }
@@ -662,12 +729,9 @@
       .planes-grid { grid-template-columns: 1fr; }
       .plan-card { border-right: none; border-bottom: 1px solid var(--border); padding: 2.5rem 1.5rem; }
       .plan-cta { position: static; opacity: 1; transform: none; margin-top: 1.5rem; display: inline-block; }
-      .plan-cta { position: static; opacity: 1; transform: none; margin-top: 2rem; }
       .proceso-content { grid-template-columns: 1fr; gap: 1rem; }
       .ba-section { grid-template-columns: 1fr; }
       .ba-col:first-child { border-right: none; border-bottom: 1px solid var(--border); }
-      .reviews-grid { grid-template-columns: 1fr; }
-      .review-box { border-right: none; border-bottom: 1px solid var(--border); }
       .ubicacion-section { grid-template-columns: 1fr; }
       .ubicacion-info { border-right: none; border-bottom: 1px solid var(--border); }
       .ubicacion-map { min-height: 280px; }
@@ -676,6 +740,8 @@
       .cta-h2 { font-size: 2.2rem; letter-spacing: -1px; }
       .btn-cta { padding: 1.2rem 2rem; width: 100%; }
       footer { flex-direction: column; gap: 1rem; text-align: center; }
+      .videos-section { padding: 3rem 1.2rem; }
+      .videos-carousel { gap: 1rem; scroll-padding: 1.2rem; }
     }
   
     /* DARK THEME FIXES */
@@ -698,314 +764,6 @@
     .plan-num { color: #444; }
     .plan-name { color: #e0e0d0; }
     .plan-desc { color: #444; }
-    .plan-badge { color: #e0e0d0; }
-    .plan-cta { background: #1a3fa0; color: #ffffff; }
-    .proceso-step { color: #444; }
-    .proceso-title { color: #e0e0d0; }
-    .proceso-trigger:hover { background: rgba(255,255,255,0.03); }
-    .proceso-desc { color: #555; }
-    .proceso-bullet { color: #555; }
-    .ba-head { color: #444; }
-    .ba-col:last-child .ba-head { color: #1a3fa0; }
-    .ba-item { color: #444; }
-    .ba-item:hover { color: #e0e0d0; }
-    .ba-col:last-child .ba-item:hover { color: #1a3fa0; }
-    .review-stars { color: #1a3fa0 !important; }
-    .review-text { color: #444; }
-    .review-name { color: #e0e0d0; }
-    .review-loc { color: #444; }
-    .review-box:hover .review-text { color: rgba(255,255,255,0.8) !important; }
-    .review-box:hover .review-name { color: #ffffff; }
-    .review-box:hover .review-stars { color: #1a3fa0 !important; }
-    .address-line { color: #555; }
-    .address-line strong { color: #e0e0d0; }
-    .horario-item { color: #555; }
-    .horario-item strong { color: #e0e0d0; }
-    .cta-h2 { color: #e0e0d0; }
-    .cta-h2 .stroke { -webkit-text-stroke: 2px #e0e0d0; }
-    .chip { color: #555; border-color: #1a1a1a; }
-    .chip:hover { background: #1a3fa0; color: #ffffff; border-color: #1a3fa0; }
-    .modal { background: #ffffff; color: #e0e0d0; }
-    .modal-title { color: #e0e0d0; }
-    .modal-close { color: #444; }
-    .modal-close:hover { color: #e0e0d0; }
-    .modal-note { color: #444; }
-    .modal-note strong { color: #e0e0d0; }
-    .modal-divider { background: #1a1a1a; }
-    .plan-chip { color: #e0e0d0; border-color: #1a1a1a; }
-    .plan-chip.active { background: #1a3fa0; color: #ffffff; border-color: #1a3fa0; }
-    .plan-chip:hover:not(.active) { border-color: #1a3fa0; color: #1a3fa0; }
-    footer { color: #444; border-color: #1a1a1a; }
-    footer a { color: #444; }
-    footer a:hover { color: #1a3fa0; }
-    .tag-dot { background: #1a3fa0; }
-    h1 .stroke { -webkit-text-stroke: 2px #e0e0d0; }
-    .modal-wa-btn svg path { fill: #080808 !important; }
-    .proceso-body { background: transparent; }
-    .ubicacion-map { background: #d8e0f8; }
-
-    /* NAVY BLUE THEME OVERRIDES */
-    .stat:hover .stat-n { color: #ffffff !important; }
-    .stat:hover .stat-l { color: rgba(255,255,255,0.7) !important; }
-    .review-box:hover { color: #ffffff !important; }
-    .review-box:hover .review-text { color: rgba(255,255,255,0.8) !important; }
-    .review-box:hover .review-name { color: #ffffff !important; }
-    .review-box:hover .review-stars { color: #1a3fa0 !important; }
-    .proceso-trigger.open .proceso-title { color: #ffffff; }
-    .proceso-trigger.open .proceso-icon { color: #ffffff; }
-    .btn-nav { color: #e8eef8; border-color: #1a2540; }
-    .btn-nav::before { background: #1a3fa0; color: #ffffff; }
-    .btn-nav:hover { color: transparent; }
-    .modal-wa-btn { background: #1a3fa0 !important; color: #ffffff !important; }
-    .modal-wa-btn:hover { background: #0d2d8a !important; }
-    .modal-wa-btn svg, .modal-wa-btn svg path { fill: #ffffff !important; }
-    .ba-col:last-child .ba-head { color: #1a3fa0; }
-    .footer a:hover { color: #1a3fa0; }
-    footer a:hover { color: #1a3fa0 !important; }
-    .spec-box:hover .spec-label { color: rgba(255,255,255,0.5) !important; }
-    .spec-box:hover { background: #1a3fa0 !important; color: #ffffff !important; }
-
-    /* LIGHT NAVY THEME */
-    body { color: #0d1b3e; }
-    .hero-tag { color: #7a8aaa; border-color: #d0d8f0; background: rgba(240,244,255,0.8); }
-    .hero-desc { color: #4a5878; }
-    .hero-desc strong { color: #0d1b3e; }
-    .hero-social a { color: #7a8aaa; }
-    .hero-social a:hover { color: #1a3fa0; }
-    .logo { color: #0d1b3e; }
-    .logo span[style] { color: #1a3fa0 !important; }
-    .nav-link { color: #0d1b3e; }
-    .btn-nav { color: #0d1b3e; border-color: #d0d8f0; }
-    .btn-nav:hover { color: transparent; }
-    .btn-nav::before { background: #1a3fa0; color: #ffffff; }
-    .scroll-indicator span { color: #7a8aaa; }
-    .stat-l { color: #7a8aaa; }
-    .stat-n { color: #0d1b3e; }
-    .stat:hover .stat-n { color: #ffffff !important; }
-    .stat:hover .stat-l { color: rgba(255,255,255,0.7) !important; }
-    .section-label { color: #7a8aaa; }
-    .section-h2 { color: #0d1b3e; }
-    .plan-num { color: #7a8aaa; }
-    .plan-name { color: #0d1b3e; }
-    .plan-desc { color: #4a5878; }
-    .plan-badge { color: #0d1b3e; border-color: #d0d8f0; }
-    .proceso-step { color: #7a8aaa; }
-    .proceso-title { color: #0d1b3e; }
-    .proceso-trigger.open .proceso-title { color: #ffffff; }
-    .proceso-trigger.open .proceso-step { color: rgba(255,255,255,0.5); }
-    .proceso-trigger.open .proceso-icon { color: #ffffff; }
-    .proceso-trigger:hover { background: rgba(26,63,160,0.05); }
-    .proceso-desc { color: #1a2a50; }
-    .proceso-bullet { color: #1a2a50; }
-    
-    .ba-head { color: #7a8aaa; }
-    .ba-col:last-child .ba-head { color: #1a3fa0; }
-    .ba-item { color: #4a5878; }
-    .ba-item:hover { color: #0d1b3e; }
-    .ba-col:last-child .ba-item:hover { color: #1a3fa0; }
-    .review-stars { color: #1a3fa0 !important; }
-    .review-text { color: #4a5878; }
-    .review-name { color: #0d1b3e; }
-    .review-loc { color: #7a8aaa; }
-    .review-box:hover { color: #ffffff !important; }
-    .review-box:hover .review-text { color: rgba(255,255,255,0.85) !important; }
-    .review-box:hover .review-name { color: #ffffff !important; }
-    .review-box:hover .review-stars { color: rgba(255,255,255,0.9) !important; }
-    .review-box:hover .review-loc { color: rgba(255,255,255,0.6) !important; }
-    .address-line { color: #4a5878; }
-    .address-line strong { color: #0d1b3e; }
-    .horario-item { color: #4a5878; }
-    .horario-item strong { color: #0d1b3e; }
-    .cta-h2 { color: #0d1b3e; }
-    .cta-h2 .stroke { -webkit-text-stroke: 2px #0d1b3e; color: transparent; }
-    .cta-h2 .red { color: #1a3fa0; }
-    h1 .stroke { -webkit-text-stroke: 2px #0d1b3e; color: transparent; }
-    .chip { color: #4a5878; border-color: #d0d8f0; }
-    .modal { background: #ffffff !important; color: #0d1b3e !important; }
-    .modal-tag { color: #1a3fa0; }
-    .modal-title { color: #0d1b3e; }
-    .modal-close { color: #7a8aaa; }
-    .modal-close:hover { color: #0d1b3e; }
-    .modal-note { color: #7a8aaa; }
-    .modal-note strong { color: #0d1b3e; }
-    .modal-divider { background: #d0d8f0; }
-    .plan-chip { color: #0d1b3e; border-color: #d0d8f0; }
-    footer { color: #7a8aaa; border-color: #d0d8f0; }
-    footer a { color: #7a8aaa; }
-    footer a:hover { color: #1a3fa0 !important; }
-    .tag-dot { background: #1a3fa0; }
-    h1 .red { color: #1a3fa0; }
-    .ig-inner { color: rgba(255,255,255,0.12); }
-    .modal-wa-btn { background: #1a3fa0 !important; color: #ffffff !important; }
-    .modal-wa-btn:hover { background: #0d2d8a !important; }
-    .modal-wa-btn svg, .modal-wa-btn svg path { fill: #ffffff !important; }
-    .hero-bg-text { color: rgba(13,27,62,0.04); }
-    .cta-bg { color: rgba(13,27,62,0.04); }
-    .ubicacion-map iframe { filter: grayscale(20%) contrast(1.1) hue-rotate(200deg); mix-blend-mode: normal; opacity: 0.9; }
-    .spec-box:hover { background: #1a3fa0 !important; color: #ffffff !important; }
-    .spec-box:hover .spec-label { color: rgba(255,255,255,0.6) !important; }
-    .spec-box:hover .spec-val { color: #ffffff !important; }
-    .proceso-body.open { background: #ffffff; }
-    .logo-dot { background: #1a3fa0; }
-
-    /* ── TOUCH INTERACTIONS (móvil) ── */
-    .stat.touched .stat-fill { transform: translateY(0); }
-    .stat.touched .stat-n { color: #ffffff; }
-    .stat.touched .stat-l { color: rgba(255,255,255,0.7); }
-
-    .plan-card.touched .plan-card-fill { transform: translateY(0); }
-    .plan-card.touched .plan-num  { color: rgba(255,255,255,0.5); }
-    .plan-card.touched .plan-name { color: #ffffff; }
-    .plan-card.touched .plan-desc { color: rgba(255,255,255,0.75); }
-    .plan-card.touched .plan-badge { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.5); color: #ffffff; }
-    .plan-card.touched .plan-cta  { opacity: 1; transform: translateY(0); background: #ffffff; color: #1a3fa0; }
-
-    .review-box.touched { background: #1a3fa0; color: #ffffff; }
-    .review-box.touched .review-text { color: rgba(255,255,255,0.8) !important; }
-    .review-box.touched .review-name { color: #ffffff !important; }
-    .review-box.touched .review-stars { color: rgba(255,255,255,0.9) !important; }
-    .review-box.touched .review-loc { color: rgba(255,255,255,0.6) !important; }
-
-    .chip.touched { background: #1a3fa0; color: #ffffff; border-color: #1a3fa0; }
-
-    .ba-item.touched { transform: translateX(6px); color: #0d1b3e; }
-    .ba-col:last-child .ba-item.touched { color: #1a3fa0; }
-
-    .wheel-section.touched .wheel-track { animation-play-state: paused; }
-    .wheel-section.touched .wheel-ig-btn { opacity: 1; pointer-events: auto; }
-
-  
-    /* ── SIN SCROLL LATERAL ── */
-    html, body {
-      overflow-x: hidden;
-      max-width: 100vw;
-    }
-    * { box-sizing: border-box; }
-
-  
-    /* ── CUESTIONARIO ── */
-    .modal { max-width: 560px; padding: 0; overflow: hidden; }
-
-    .quiz-progress-bar {
-      height: 3px; background: var(--border);
-      position: relative; width: 100%;
-    }
-    .quiz-progress-fill {
-      height: 100%; background: #1a3fa0;
-      transition: width 0.4s cubic-bezier(0.76,0,0.24,1);
-      width: 0%;
-    }
-
-    .quiz-header {
-      padding: 1.8rem 2rem 1.2rem;
-      border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .quiz-step-label {
-      font-size: 0.58rem; letter-spacing: 3px; text-transform: uppercase; color: var(--gray);
-    }
-    .quiz-close {
-      background: none; border: none; font-size: 1.1rem;
-      cursor: pointer; color: var(--gray); transition: color 0.2s; line-height: 1;
-    }
-    .quiz-close:hover { color: var(--black); }
-
-    .quiz-body { padding: 2rem; }
-    .quiz-question {
-      font-family: var(--font-display); font-size: 1.3rem; font-weight: 900;
-      letter-spacing: -0.5px; line-height: 1.15; margin-bottom: 0.6rem; color: #0d1b3e;
-    }
-    .quiz-sub {
-      font-size: 0.78rem; color: var(--gray); margin-bottom: 1.6rem; line-height: 1.6;
-    }
-
-    .quiz-options { display: flex; flex-direction: column; gap: 10px; }
-    .quiz-option {
-      display: flex; align-items: center; gap: 14px;
-      border: 1px solid var(--border); padding: 1rem 1.2rem;
-      cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden;
-      background: #fff;
-    }
-    .quiz-option:hover { border-color: #1a3fa0; }
-    .quiz-option.selected { border-color: #1a3fa0; background: #f0f4ff; }
-    .quiz-option.selected .quiz-opt-dot { background: #1a3fa0; border-color: #1a3fa0; }
-    .quiz-option.selected .quiz-opt-dot::after { opacity: 1; }
-    .quiz-opt-dot {
-      width: 18px; height: 18px; border-radius: 50%;
-      border: 2px solid var(--border); flex-shrink: 0;
-      position: relative; transition: all 0.2s;
-    }
-    .quiz-opt-dot::after {
-      content: ''; position: absolute; top: 3px; left: 3px;
-      width: 8px; height: 8px; border-radius: 50%;
-      background: #fff; opacity: 0; transition: opacity 0.2s;
-    }
-    .quiz-opt-text { font-size: 0.85rem; color: #0d1b3e; line-height: 1.4; }
-    .quiz-opt-emoji { font-size: 1.1rem; flex-shrink: 0; }
-
-    .quiz-nav {
-      display: flex; gap: 10px; margin-top: 1.6rem; align-items: center;
-    }
-    .quiz-btn-back {
-      background: none; border: 1px solid var(--border);
-      padding: 0.85rem 1.4rem; cursor: pointer; font-size: 0.75rem;
-      color: var(--gray); transition: all 0.2s; flex-shrink: 0;
-      font-family: var(--font-display); letter-spacing: 1px;
-    }
-    .quiz-btn-back:hover { border-color: #0d1b3e; color: #0d1b3e; }
-    .quiz-btn-next {
-      flex: 1; background: #1a3fa0; color: #fff; border: none;
-      padding: 0.95rem; cursor: pointer;
-      font-family: var(--font-display); font-size: 0.8rem; font-weight: 700;
-      letter-spacing: 2px; text-transform: uppercase;
-      transition: background 0.2s; opacity: 0.4; pointer-events: none;
-    }
-    .quiz-btn-next.active { opacity: 1; pointer-events: auto; }
-    .quiz-btn-next:hover { background: #0d2d8a; }
-
-    /* Pantalla de resultado */
-    .quiz-result { padding: 2.5rem 2rem; text-align: center; }
-    .quiz-result-icon { font-size: 3.5rem; margin-bottom: 1rem; }
-    .quiz-result-title {
-      font-family: var(--font-display); font-size: 1.5rem; font-weight: 900;
-      letter-spacing: -0.5px; margin-bottom: 0.8rem; color: #0d1b3e;
-    }
-    .quiz-result-desc {
-      font-size: 0.84rem; line-height: 1.8; color: var(--gray);
-      margin-bottom: 2rem; max-width: 360px; margin-left: auto; margin-right: auto;
-    }
-    .quiz-result-wa {
-      width: 100%; background: #1a3fa0; color: #fff; border: none;
-      padding: 1.1rem; cursor: pointer;
-      font-family: var(--font-display); font-size: 0.82rem; font-weight: 700;
-      letter-spacing: 2px; text-transform: uppercase;
-      display: flex; align-items: center; justify-content: center; gap: 10px;
-      transition: background 0.2s; margin-bottom: 1rem;
-    }
-    .quiz-result-wa:hover { background: #0d2d8a; }
-    .quiz-result-no {
-      font-size: 0.75rem; color: var(--gray); line-height: 1.7;
-    }
-    .quiz-summary {
-      background: #f0f4ff; padding: 1rem 1.2rem;
-      margin-bottom: 1.5rem; text-align: left;
-      border-left: 3px solid #1a3fa0;
-    }
-    .quiz-summary-item {
-      font-size: 0.75rem; color: #4a5878; padding: 0.25rem 0;
-    }
-    .quiz-summary-item span { color: #0d1b3e; font-weight: 600; }
-
-  
-    /* ── ONLINE CARDS ── */
-    .online-card:hover .online-fill { transform: translateY(0) !important; }
-    .online-card:hover .oc-title { color: #ffffff !important; }
-    .online-card:hover .oc-desc { color: rgba(255,255,255,0.75) !important; }
-    @media (max-width: 768px) {
-      .online-card { border-right: none !important; border-bottom: 1px solid var(--border); padding: 2rem 1.5rem !important; }
-      section[id="online"] > div:nth-child(2) { grid-template-columns: 1fr !important; }
-    }
-
   </style>
 </head>
 <body>
@@ -1200,12 +958,12 @@
     </button>
     <div class="proceso-body">
       <div class="proceso-content">
-        <div class="proceso-desc">Nada de plantillas genéricas. Diseño tu plan específicamente para ti: tus objetivos, tu tiempo disponible, tu nivel y tu cuerpo. Cada semana evoluciona.</div>
+        <div class="proceso-desc">Diseño tu rutina de entrenamiento personalizada en función de tu objetivo, experiencia y equipamiento. No es genérica. Es tuya.</div>
         <div class="proceso-bullets">
-          <div class="proceso-bullet">Rutina 100% personalizada</div>
-          <div class="proceso-bullet">Progresión semanal planificada</div>
-          <div class="proceso-bullet">Adaptada a tu vida real</div>
-          <div class="proceso-bullet">Técnica correcta desde el día 1</div>
+          <div class="proceso-bullet">Rutina diseñada a medida</div>
+          <div class="proceso-bullet">Plan nutricional personalizado</div>
+          <div class="proceso-bullet">Acceso directo a WhatsApp</div>
+          <div class="proceso-bullet">Revisiones mensuales incluidas</div>
         </div>
       </div>
     </div>
@@ -1215,38 +973,17 @@
     <button class="proceso-trigger" onclick="toggleProceso(this)">
       <div class="proceso-left">
         <span class="proceso-step">Paso 03</span>
-        <span class="proceso-title">Rutina + nutrición personalizadas</span>
+        <span class="proceso-title">Seguimiento y ajustes</span>
       </div>
       <span class="proceso-icon">+</span>
     </button>
     <div class="proceso-body">
       <div class="proceso-content">
-        <div class="proceso-desc">Con toda la información de la valoración, diseño tu plan de entrenamiento y tu guía nutricional desde cero. Nada genérico, todo adaptado a ti, tu ritmo de vida y tus objetivos.</div>
+        <div class="proceso-desc">Cada mes analizamos fotos, peso, sensaciones en el gym. Ajusto la rutina y nutrición según tu progreso. Si tienes preguntas, me tienes.</div>
         <div class="proceso-bullets">
-          <div class="proceso-bullet">Rutina 100% personalizada</div>
-          <div class="proceso-bullet">Asesoramiento nutricional incluido</div>
-          <div class="proceso-bullet">100% online — trabaja desde donde quieras</div>
-          <div class="proceso-bullet">Ajustes continuos según tu progresión</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="proceso-item">
-    <button class="proceso-trigger" onclick="toggleProceso(this)">
-      <div class="proceso-left">
-        <span class="proceso-step">Paso 04</span>
-        <span class="proceso-title">Seguimiento y progresión</span>
-      </div>
-      <span class="proceso-icon">+</span>
-    </button>
-    <div class="proceso-body">
-      <div class="proceso-content">
-        <div class="proceso-desc">Cada mes revisamos métricas, fotos de progreso y sensaciones. Ajusto la rutina y la nutrición según cómo evoluciones. No te dejo solo en ningún momento del proceso.</div>
-        <div class="proceso-bullets">
-          <div class="proceso-bullet">Check-in mensual de progresión</div>
-          <div class="proceso-bullet">Ajuste de rutina y nutrición</div>
-          <div class="proceso-bullet">Acceso directo a mí por WhatsApp</div>
+          <div class="proceso-bullet">Seguimiento semanal si lo necesitas</div>
+          <div class="proceso-bullet">Ajustes de rutina y nutrición</div>
+          <div class="proceso-bullet">Motivación y accountability</div>
           <div class="proceso-bullet">Resultados que no desaparecen</div>
         </div>
       </div>
@@ -1274,9 +1011,7 @@
   </div>
 </section>
 
-<!-- TESTIMONIOS -->
-
-<!-- VÍDEOS -->
+<!-- VÍDEOS CARRUSEL MEJORADO -->
 <section class="videos-section">
   <div class="videos-header reveal">
     <div class="videos-label">Aprende a entrenar bien</div>
@@ -1394,18 +1129,18 @@
     </div>
 
   </div>
-  <button class="wheel-ig-btn">@pablitofit_ — Ver Instagram →</button>
+  <button class="wheel-ig-btn" onclick="window.open('https://www.instagram.com/pablitofit_','_blank')">SEGUIR EN INSTAGRAM</button>
 </div>
 
-<!-- UBICACIÓN -->
-<section style="border-bottom:1px solid var(--border);" id="online">
-  <div style="padding:3rem 2.5rem;border-bottom:1px solid var(--border);" class="reveal">
-    <div class="section-label">04 — Cómo funciona online</div>
-    <h2 class="section-h2">DA IGUAL<br>DÓNDE ESTÉS</h2>
+<!-- 100% ONLINE -->
+<section style="border-bottom: 1px solid var(--border);" id="online">
+  <div style="padding:3rem 2.5rem;border-bottom:1px solid var(--border);">
+    <div class="section-label reveal">03 — Tu espacio seguro</div>
+    <h2 class="section-h2 reveal">100% ONLINE</h2>
   </div>
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);">
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--border);">
 
-    <div style="padding:3rem 2.5rem;border-right:1px solid var(--border);position:relative;overflow:hidden;cursor:none;transition:background 0.4s;" class="reveal-left online-card">
+    <div style="padding:3rem 2.5rem;border-right:1px solid var(--border);position:relative;overflow:hidden;cursor:none;transition:background 0.4s;" class="reveal online-card">
       <div style="position:absolute;inset:0;background:#1a3fa0;transform:translateY(100%);transition:transform 0.5s cubic-bezier(0.76,0,0.24,1);" class="online-fill"></div>
       <div style="position:relative;z-index:1;">
         <div style="font-size:2.5rem;margin-bottom:1.5rem;">📋</div>
@@ -1531,174 +1266,145 @@ document.querySelectorAll('[data-target]').forEach(el=>cObs.observe(el));
 function toggleProceso(btn){
   const body=btn.nextElementSibling;
   const isOpen=body.classList.contains('open');
-  // Cerrar todos
   document.querySelectorAll('.proceso-body.open').forEach(b=>{
     b.classList.remove('open');
     b.previousElementSibling.classList.remove('open');
   });
-  // Abrir si estaba cerrado
   if(!isOpen){ body.classList.add('open'); btn.classList.add('open'); }
 }
 
 // ── MODAL ──
-// ── CUESTIONARIO DE CUALIFICACIÓN ──
 const PREGUNTAS = [
   {
     id: 'objetivo',
     pregunta: '¿Cuál es tu objetivo principal?',
     sub: 'Sé honesto, no hay respuesta incorrecta.',
     opciones: [
-      { emoji: '💪', texto: 'Ganar masa muscular e hipertrofia', valor: 3 },
-      { emoji: '🔥', texto: 'Perder grasa y definir el cuerpo', valor: 3 },
-      { emoji: '⚡', texto: 'Mejorar mi rendimiento y energía', valor: 3 },
-      { emoji: '🤷', texto: 'No tengo claro, quiero orientación', valor: 1 },
+      {emoji:'💪',text:'Ganar masa muscular'},
+      {emoji:'⚖️',text:'Perder grasa corporal'},
+      {emoji:'⚡',text:'Mejorar mi fuerza y potencia'},
+      {emoji:'🧘',text:'Mejorar mi salud general'}
     ]
   },
   {
     id: 'experiencia',
-    pregunta: '¿Cuánto tiempo llevas entrenando?',
-    sub: 'Esto me ayuda a saber el punto de partida.',
+    pregunta: '¿Cuánta experiencia tienes entrenando?',
+    sub: '',
     opciones: [
-      { emoji: '🌱', texto: 'Nunca he entrenado en serio', valor: 3 },
-      { emoji: '📅', texto: 'Menos de 1 año, con altibajos', valor: 3 },
-      { emoji: '🏋️', texto: '1-3 años pero sin resultados claros', valor: 3 },
-      { emoji: '🏆', texto: 'Más de 3 años de forma constante', valor: 2 },
+      {emoji:'🌱',text:'Soy principiante (0-6 meses)'},
+      {emoji:'📈',text:'Tengo experiencia (6 meses - 2 años)'},
+      {emoji:'🎯',text:'Llevo tiempo (2-5 años)'},
+      {emoji:'🏆',text:'Soy avanzado (5+ años)'}
+    ]
+  },
+  {
+    id: 'frecuencia',
+    pregunta: '¿Con qué frecuencia podrías entrenar?',
+    sub: '',
+    opciones: [
+      {emoji:'😅',text:'1-2 veces por semana'},
+      {emoji:'💪',text:'3-4 veces por semana'},
+      {emoji:'⚡',text:'5-6 veces por semana'},
+      {emoji:'🚀',text:'Puedo ajustarme a lo que sea'}
+    ]
+  },
+  {
+    id: 'presupuesto',
+    pregunta: '¿Cuál es tu situación con el presupuesto?',
+    sub: '',
+    opciones: [
+      {emoji:'💸',text:'Tengo un presupuesto limitado'},
+      {emoji:'💰',text:'Tengo presupuesto medio'},
+      {emoji:'💎',text:'Presupuesto no es problema'},
+      {emoji:'❓',text:'Prefiero no decir'}
     ]
   },
   {
     id: 'compromiso',
-    pregunta: '¿Estás dispuesto a comprometerte mínimo 6 meses?',
-    sub: 'Los resultados reales requieren tiempo. Quiero trabajar con personas que lo entienden.',
+    pregunta: '¿Qué tan comprometido estás con tu cambio?',
+    sub: '',
     opciones: [
-      { emoji: '✅', texto: 'Sí, quiero resultados de verdad y entiendo que lleva tiempo', valor: 3 },
-      { emoji: '🤔', texto: 'Me gustaría, pero depende de lo que suponga', valor: 2 },
-      { emoji: '📅', texto: 'Preferiría probar un mes primero', valor: 0 },
-      { emoji: '❌', texto: 'No, busco algo puntual o a corto plazo', valor: 0 },
+      {emoji:'🤔',text:'Solo estoy curioseando'},
+      {emoji:'😐',text:'Tengo dudas pero me interesa'},
+      {emoji:'✅',text:'Estoy dispuesto a intentarlo'},
+      {emoji:'🔥',text:'Estoy 100% comprometido'}
     ]
-  },
-  {
-    id: 'disponibilidad',
-    pregunta: '¿Cuántos días a la semana puedes dedicar al entrenamiento?',
-    sub: 'Siendo realista con tu vida actual.',
-    opciones: [
-      { emoji: '1️⃣', texto: '1 día — tengo muy poco tiempo', valor: 1 },
-      { emoji: '2️⃣', texto: '2-3 días — tengo algo de margen', valor: 3 },
-      { emoji: '3️⃣', texto: '4-5 días — puedo organizarme bien', valor: 3 },
-      { emoji: '💼', texto: 'Depende de la semana, es muy variable', valor: 2 },
-    ]
-  },
-  {
-    id: 'nutricion',
-    pregunta: '¿Qué relación tienes con la alimentación?',
-    sub: 'La nutrición es el 50% del resultado.',
-    opciones: [
-      { emoji: '🍕', texto: 'Bastante mala, como sin control', valor: 3 },
-      { emoji: '🥗', texto: 'Intento cuidarme pero no sé cómo', valor: 3 },
-      { emoji: '📊', texto: 'Llevo un control básico', valor: 3 },
-      { emoji: '🚫', texto: 'Solo quiero la parte de entrenamiento', valor: 1 },
-    ]
-  },
+  }
 ];
 
-let quizStep = 0;
-let quizRespuestas = {};
-let quizPuntos = 0;
+let currentQuestion=0;let answers={};
 
-function abrirModal(plan) {
-  quizStep = 0;
-  quizRespuestas = {};
-  quizPuntos = 0;
-  document.getElementById('modalOverlay').classList.add('open');
-  document.body.style.overflow = 'hidden';
-  renderPregunta();
+function mostrarPregunta(){
+  const q=PREGUNTAS[currentQuestion];
+  const progress=(currentQuestion+1)/PREGUNTAS.length*100;
+  document.getElementById('quizProgress').style.width=progress+'%';
+  document.getElementById('quizStepLabel').textContent=`Pregunta ${currentQuestion+1} de ${PREGUNTAS.length}`;
+  
+  let html=`<div class="quiz-question">${q.pregunta}</div>`;
+  if(q.sub) html+=`<div class="quiz-sub">${q.sub}</div>`;
+  html+=`<div class="quiz-options">`;
+  
+  q.opciones.forEach((op,i)=>{
+    const selected=answers[q.id]===i?'selected':'';
+    html+=`<div class="quiz-option ${selected}" onclick="selectOption(${i},'${q.id}')"><div class="quiz-opt-dot"></div><span class="quiz-opt-emoji">${op.emoji}</span><div class="quiz-opt-text">${op.text}</div></div>`;
+  });
+  
+  html+=`</div><div class="quiz-nav">`;
+  if(currentQuestion>0) html+=`<button class="quiz-btn-back" onclick="irPreguntaAnterior()">← Atrás</button>`;
+  html+=`<button class="quiz-btn-next ${answers[q.id]!==undefined?'active':''}" id="btnSiguiente" onclick="irSiguiente()">Siguiente →</button></div>`;
+  
+  document.getElementById('quizBody').innerHTML=html;
 }
 
-function cerrarModal() {
-  document.getElementById('modalOverlay').classList.remove('open');
-  document.body.style.overflow = '';
+function selectOption(idx,qId){
+  answers[qId]=idx;
+  document.querySelectorAll('.quiz-option').forEach(el=>el.classList.remove('selected'));
+  event.target.closest('.quiz-option').classList.add('selected');
+  document.getElementById('btnSiguiente').classList.add('active');
 }
 
-function cerrarModalFuera(e) {
-  if (e.target === document.getElementById('modalOverlay')) cerrarModal();
-}
-
-function renderPregunta() {
-  const total = PREGUNTAS.length;
-  const p = PREGUNTAS[quizStep];
-  const pct = (quizStep / total) * 100;
-
-  document.getElementById('quizProgress').style.width = pct + '%';
-  document.getElementById('quizStepLabel').textContent = `Pregunta ${quizStep + 1} de ${total}`;
-
-  const opcionesHTML = p.opciones.map((op, i) => `
-    <div class="quiz-option" onclick="seleccionarOpcion(this, ${i}, ${op.valor}, '${op.texto.replace(/'/g,"\'")}', '${p.id}')">
-      <div class="quiz-opt-dot"></div>
-      <span class="quiz-opt-emoji">${op.emoji}</span>
-      <span class="quiz-opt-text">${op.texto}</span>
-    </div>
-  `).join('');
-
-  document.getElementById('quizBody').innerHTML = `
-    <div class="quiz-question">${p.pregunta}</div>
-    <div class="quiz-sub">${p.sub}</div>
-    <div class="quiz-options">${opcionesHTML}</div>
-    <div class="quiz-nav">
-      ${quizStep > 0 ? `<button class="quiz-btn-back" onclick="quizAtras()">← Atrás</button>` : ''}
-      <button class="quiz-btn-next" id="quizBtnNext" onclick="quizSiguiente()">
-        ${quizStep < total - 1 ? 'Siguiente →' : 'Ver resultado →'}
-      </button>
-    </div>
-  `;
-}
-
-function seleccionarOpcion(el, idx, valor, texto, id) {
-  document.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected'));
-  el.classList.add('selected');
-  quizRespuestas[id] = { valor, texto };
-  document.getElementById('quizBtnNext').classList.add('active');
-}
-
-function quizSiguiente() {
-  const p = PREGUNTAS[quizStep];
-  if (!quizRespuestas[p.id]) return;
-  quizPuntos += quizRespuestas[p.id].valor;
-
-  if (quizStep < PREGUNTAS.length - 1) {
-    quizStep++;
-    renderPregunta();
-    // Restaurar selección si ya respondió
-    const prev = quizRespuestas[PREGUNTAS[quizStep]?.id];
+function irSiguiente(){
+  if(currentQuestion<PREGUNTAS.length-1){
+    currentQuestion++;
+    mostrarPregunta();
   } else {
-    renderResultado();
+    mostrarResultado();
   }
 }
 
-function quizAtras() {
-  if (quizStep > 0) { quizStep--; renderPregunta(); }
+function irPreguntaAnterior(){
+  if(currentQuestion>0){
+    currentQuestion--;
+    mostrarPregunta();
+  }
 }
 
-function renderResultado() {
-  const maxPuntos = PREGUNTAS.length * 3;
-  const pct = quizPuntos / maxPuntos;
-  document.getElementById('quizProgress').style.width = '100%';
-  document.getElementById('quizStepLabel').textContent = 'Resultado del cuestionario';
-
-  const resumen = Object.entries(quizRespuestas).map(([id, r]) => {
-    const labels = { objetivo:'Objetivo', experiencia:'Experiencia', compromiso:'Compromiso', disponibilidad:'Disponibilidad', nutricion:'Nutrición' };
-    return `<div class="quiz-summary-item">${labels[id]}: <span>${r.texto}</span></div>`;
-  }).join('');
-
-  let icono, titulo, desc, ctaHTML;
-
-  if (pct >= 0.75) {
-    // Buen fit
-    const waMsg = encodeURIComponent(
-      `Hola Pablito! Acabo de rellenar el cuestionario de tu web. Mi objetivo es ${quizRespuestas.objetivo?.texto}, llevo ${quizRespuestas.experiencia?.texto} y me puedo comprometer ${quizRespuestas.compromiso?.texto}. Me gustaría hacer la valoración inicial. ¿Cuándo podemos hablar?`
-    );
-    icono = '✅';
-    titulo = '¡Encajamos bien!';
-    desc = 'Basándome en tus respuestas, creo que podemos trabajar juntos y conseguir resultados reales. El siguiente paso es una valoración inicial gratuita para conocernos y diseñar tu plan.';
-    ctaHTML = `
+function mostrarResultado(){
+  const scores={objetivo:0,experiencia:0,frecuencia:0,presupuesto:0,compromiso:0};
+  scores.objetivo=answers.objetivo!==undefined?[3,2,3,2][answers.objetivo]:0;
+  scores.experiencia=answers.experiencia!==undefined?[1,2,3,3][answers.experiencia]:0;
+  scores.frecuencia=answers.frecuencia!==undefined?[1,2,3,3][answers.frecuencia]:0;
+  scores.presupuesto=answers.presupuesto!==undefined?[1,2,3,2][answers.presupuesto]:0;
+  scores.compromiso=answers.compromiso!==undefined?[0,1,2,3][answers.compromiso]:0;
+  
+  const totalScore=Object.values(scores).reduce((a,b)=>a+b,0);
+  const maxScore=15;
+  const pct=totalScore/maxScore;
+  
+  let resumen='<div>';
+  if(answers.objetivo!==undefined) resumen+=`<div class="quiz-summary-item">Objetivo: <span>${['Ganar masa','Perder grasa','Mejorar fuerza','Mejorar salud'][answers.objetivo]}</span></div>`;
+  if(answers.experiencia!==undefined) resumen+=`<div class="quiz-summary-item">Experiencia: <span>${['Principiante','Intermedio','Avanzado','Muy avanzado'][answers.experiencia]}</span></div>`;
+  if(answers.frecuencia!==undefined) resumen+=`<div class="quiz-summary-item">Frecuencia: <span>${['1-2x/sem','3-4x/sem','5-6x/sem','Flexible'][answers.frecuencia]}</span></div>`;
+  resumen+='</div>';
+  
+  let icono,titulo,desc,ctaHTML;
+  
+  if(pct>=0.7){
+    icono='🎉';
+    titulo='¡Perfecto! Vamos a trabajar juntos';
+    desc='Veo que tienes todo lo necesario para conseguir resultados reales. Tú tienes la intención, yo tengo el método. Vamos a hacerlo posible.';
+    const waMsg=encodeURIComponent(`Hola Pablito! He rellenado el cuestionario de tu web y estoy listo para empezar. Quiero conocer más sobre los planes.`);
+    ctaHTML=`
       <div class="quiz-summary">${resumen}</div>
       <button class="quiz-result-wa" onclick="window.open('https://wa.me/34634623930?text=${waMsg}','_blank');cerrarModal();">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
@@ -1706,15 +1412,12 @@ function renderResultado() {
       </button>
       <div class="quiz-result-no">Te abriré WhatsApp con un resumen de tus respuestas para que la valoración sea más ágil.</div>
     `;
-  } else if (pct >= 0.45) {
-    // Fit medio
-    const waMsg = encodeURIComponent(
-      `Hola Pablito! He rellenado el cuestionario de tu web y tengo algunas dudas antes de dar el paso. ¿Podemos hablar un momento?`
-    );
-    icono = '🤔';
-    titulo = 'Tenemos margen, pero hay dudas';
-    desc = 'Veo intención real, pero hay algunos puntos donde podríamos encajar mejor. Si tienes preguntas o dudas concretas, escríbeme y las resolvemos antes de la valoración.';
-    ctaHTML = `
+  } else if(pct>=0.45){
+    const waMsg=encodeURIComponent(`Hola Pablito! He rellenado el cuestionario de tu web y tengo algunas dudas antes de dar el paso. ¿Podemos hablar un momento?`);
+    icono='🤔';
+    titulo='Tenemos margen, pero hay dudas';
+    desc='Veo intención real, pero hay algunos puntos donde podríamos encajar mejor. Si tienes preguntas o dudas concretas, escríbeme y las resolvemos antes de la valoración.';
+    ctaHTML=`
       <div class="quiz-summary">${resumen}</div>
       <button class="quiz-result-wa" onclick="window.open('https://wa.me/34634623930?text=${waMsg}','_blank');cerrarModal();">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
@@ -1723,11 +1426,10 @@ function renderResultado() {
       <div class="quiz-result-no">Sin compromiso. Solo una conversación para aclarar dudas.</div>
     `;
   } else {
-    // No fit
-    icono = '⏳';
-    titulo = 'Ahora mismo no es el momento';
-    desc = 'Soy honesto: trabajo con personas que buscan un compromiso serio a medio plazo. Basándome en tus respuestas, creo que todavía no es el momento adecuado. Cuando estés listo, estaré aquí.';
-    ctaHTML = `
+    icono='⏳';
+    titulo='Ahora mismo no es el momento';
+    desc='Soy honesto: trabajo con personas que buscan un compromiso serio a medio plazo. Basándome en tus respuestas, creo que todavía no es el momento adecuado. Cuando estés listo, estaré aquí.';
+    ctaHTML=`
       <div class="quiz-result-no" style="font-size:0.82rem;line-height:1.9;color:#4a5878;margin-bottom:1.5rem">
         Si en algún momento cambias de situación o tienes preguntas, puedes escribirme igualmente. No hay prisa y no hay presión.
       </div>
@@ -1737,7 +1439,7 @@ function renderResultado() {
     `;
   }
 
-  document.getElementById('quizBody').innerHTML = `
+  document.getElementById('quizBody').innerHTML=`
     <div class="quiz-result">
       <div class="quiz-result-icon">${icono}</div>
       <div class="quiz-result-title">${titulo}</div>
@@ -1747,9 +1449,20 @@ function renderResultado() {
   `;
 }
 
-// Dummy functions para compatibilidad con botones antiguos
-function seleccionarPlan(el, plan) {}
-function irWhatsApp() {}
+function abrirModal(){
+  document.getElementById('modalOverlay').classList.add('open');
+  currentQuestion=0;
+  answers={};
+  mostrarPregunta();
+}
+
+function cerrarModal(){
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+
+function cerrarModalFuera(e){
+  if(e.target.id==='modalOverlay') cerrarModal();
+}
 
 // ── PARALLAX HERO ──
 window.addEventListener('scroll',()=>{
@@ -1792,7 +1505,6 @@ document.querySelectorAll('.stat').forEach(stat=>{
     setTimeout(()=>r.remove(),600);
   });
 });
-// CSS ripple
 const s=document.createElement('style');
 s.textContent='@keyframes ripple{to{transform:scale(4);opacity:0}}';
 document.head.appendChild(s);
@@ -1822,22 +1534,10 @@ function addTouch(selector, toggleClass, duration) {
   });
 }
 
-// Stats
 addTouch('.stat', 'touched', 700);
-
-// Plan cards — más largo para que se vea bien
 addTouch('.plan-card', 'touched', 900);
-
-// Reviews
-addTouch('.review-box', 'touched', 800);
-
-// Chips
 addTouch('.chip', 'touched', 500);
 
-// Before/After items
-addTouch('.ba-item', 'touched', 600);
-
-// Wheel section pausa al tocar
 const wheelSec = document.querySelector('.wheel-section');
 if (wheelSec) {
   wheelSec.addEventListener('touchstart', () => {
@@ -1848,7 +1548,6 @@ if (wheelSec) {
   }, { passive: true });
 }
 
-// Ripple en stats con touch
 document.querySelectorAll('.stat').forEach(stat => {
   stat.addEventListener('touchstart', e => {
     const touch = e.touches[0];
@@ -1860,23 +1559,9 @@ document.querySelectorAll('.stat').forEach(stat => {
   }, { passive: true });
 });
 
-
-// ── BLOQUEAR SCROLL LATERAL EN MÓVIL ──
-(function() {
-  let startX = 0, startY = 0;
-  document.addEventListener('touchstart', e => {
-    startX = e.touches[0].clientX;
-    startY = e.touches[0].clientY;
-  }, { passive: true });
-  document.addEventListener('touchmove', e => {
-    const dx = Math.abs(e.touches[0].clientX - startX);
-    const dy = Math.abs(e.touches[0].clientY - startY);
-    // Si el gesto es más horizontal que vertical, lo bloqueamos
-    if (dx > dy) {
-      e.preventDefault();
-    }
-  }, { passive: false });
-})();
+// ✅ SCROLL LIBRE - SIN BLOQUEOS
+// El carrusel usa scroll-snap CSS que funciona nativo en móvil
+// No hay bloqueo global de scroll horizontal
 
 </script>
 </body>
