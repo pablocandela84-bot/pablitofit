@@ -101,16 +101,23 @@
       border-bottom: 1px solid var(--border);
     }
     .logo {
-      font-family: var(--font-display);
-      font-size: 1.1rem; font-weight: 900;
-      letter-spacing: 6px; color: #0d1b3e !important;
-      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
+    
+    .logo img {
+      width: 64px !important;
+      height: 64px !important;
+      transition: transform 0.3s ease;
+    }
+    
+    .logo img:hover {
+      transform: scale(1.1);
+    }
+    
     .logo .logo-dot {
-      display: inline-block; width: 8px; height: 8px;
-      background: var(--accent); border-radius: 50%;
-      margin-left: 3px; vertical-align: super;
-      animation: blink 1.5s ease-in-out infinite;
+      display: none;
     }
     @keyframes blink { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.3;transform:scale(0.6)} }
     .nav-links { display: flex; align-items: center; gap: 2.5rem; }
@@ -158,7 +165,7 @@
     
     /* CTA PRINCIPAL PROMINENTE */
     .btn-cta-hero {
-      background: linear-gradient(135deg, #ff6b35, #ff8c42);
+      background: #1a3fa0;
       color: white;
       border: none;
       padding: 1rem 2.5rem;
@@ -170,7 +177,7 @@
       border-radius: 8px;
       cursor: pointer;
       transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-      box-shadow: 0 10px 30px rgba(255, 107, 53, 0.3);
+      box-shadow: 0 10px 30px rgba(26, 63, 160, 0.3);
       margin: 2rem 0 2rem 0;
       display: inline-block;
       position: relative;
@@ -179,8 +186,8 @@
     
     .btn-cta-hero:hover {
       transform: translateY(-4px);
-      box-shadow: 0 20px 40px rgba(255, 107, 53, 0.5);
-      background: linear-gradient(135deg, #ff8c42, #ff6b35);
+      box-shadow: 0 20px 40px rgba(26, 63, 160, 0.5);
+      background: #0d2d8a;
     }
     
     .btn-cta-hero:active {
@@ -904,7 +911,9 @@
 
 <!-- NAV -->
 <nav id="mainNav">
-  <div class="logo">PABLITO<span style="color:var(--accent)">FIT</span><span class="logo-dot"></span></div>
+  <div class="logo">
+    <img src="https://raw.githubusercontent.com/pablocandela84-bot/pablitofit-app/main/logo.png" style="width:56px;height:56px;border-radius:50%;object-fit:cover;display:inline-block" alt="PablitoFit" title="PablitoFit">
+  </div>
   <div class="nav-links">
     <a href="#planes" class="nav-link">Empieza</a>
     <a href="#proceso" class="nav-link">Cómo funciona</a>
@@ -916,15 +925,6 @@
 
 <!-- HERO -->
 <section class="hero">
-  <!-- VIDEO FONDO -->
-  <video autoplay muted loop playsinline preload="auto" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:0">
-    <source src="video1.mp4" type="video/mp4">
-  </video>
-  
-  <!-- OVERLAY OSCURO -->
-  <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(13,27,62,0.55);z-index:0.5"></div>
-  
-  <!-- CONTENIDO -->
   <div class="hero-bg-text">FUERZA</div>
   <div class="hero-content">
     <div class="hero-tag">
@@ -933,7 +933,7 @@
     </div>
     <h1>DEJA DE<br>INTENTARLO.<br><span class="red">HAZLO</span></h1>
     
-    <!-- CTA PRINCIPAL (PROMINENTE) -->
+    <!-- CTA PRINCIPAL -->
     <button class="btn-cta-hero" onclick="abrirModal()">EMPIEZA AHORA →</button>
     
     <div class="hero-bottom">
@@ -954,7 +954,56 @@
   </div>
 </section>
 
-<!-- STATS -->
+<!-- VIDEOS ARRIBA -->
+<section class="videos-section">
+  <div class="videos-header reveal">
+    <div class="videos-label">Aprende a entrenar bien</div>
+    <div class="videos-title">TÉCNICA<br><span>PERFECTA</span></div>
+    <div class="videos-subtitle">Te enseño a ejecutar cada movimiento correctamente para que progreses sin lesiones y con máximos resultados.</div>
+  </div>
+  <div class="videos-carousel">
+
+    <div class="video-slide reveal-left">
+      <div class="video-wrapper">
+        <video autoplay muted loop playsinline preload="auto" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+          <source src="video1.mp4" type="video/mp4">
+        </video>
+        <div class="video-overlay"></div>
+      </div>
+      <div class="video-info">
+        <div class="video-num">01 — Técnica</div>
+        <div class="video-titulo">Ejecución perfecta</div>
+      </div>
+    </div>
+
+    <div class="video-slide reveal">
+      <div class="video-wrapper">
+        <video autoplay muted loop playsinline preload="auto" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+          <source src="video2.mp4" type="video/mp4">
+        </video>
+        <div class="video-overlay"></div>
+      </div>
+      <div class="video-info">
+        <div class="video-num">02 — Técnica</div>
+        <div class="video-titulo">Control y progresión</div>
+      </div>
+    </div>
+
+    <div class="video-slide reveal-right">
+      <div class="video-wrapper">
+        <video autoplay muted loop playsinline preload="auto" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+          <source src="video3.mp4" type="video/mp4">
+        </video>
+        <div class="video-overlay"></div>
+      </div>
+      <div class="video-info">
+        <div class="video-num">03 — Técnica</div>
+        <div class="video-titulo">Máximo rendimiento</div>
+      </div>
+    </div>
+
+  </div>
+</section>
 <div class="stats reveal">
   <div class="stat">
     <div class="stat-fill"></div>
